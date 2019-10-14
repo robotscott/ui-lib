@@ -124,6 +124,41 @@
           }
         }
       }
+    },
+    "ui-charts": {
+      "projectType": "library",
+      "root": "projects/ui-charts",
+      "sourceRoot": "projects/ui-charts/src",
+      "prefix": "ui",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ui-charts/tsconfig.lib.json",
+            "project": "projects/ui-charts/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ui-charts/src/test.ts",
+            "tsConfig": "projects/ui-charts/tsconfig.spec.json",
+            "karmaConfig": "projects/ui-charts/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ui-charts/tsconfig.lib.json",
+              "projects/ui-charts/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }},
   "defaultProject": "ui-lib-demo"
 }

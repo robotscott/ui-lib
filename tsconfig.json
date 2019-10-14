@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ui-charts": [
+        "dist/ui-charts"
+      ],
+      "ui-charts/*": [
+        "dist/ui-charts/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
