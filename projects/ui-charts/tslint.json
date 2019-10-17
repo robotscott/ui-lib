@@ -12,6 +12,7 @@
       "element",
       "ui",
       "kebab-case"
-    ]
+    ],
+    "only-arrow-functions": false
   }
 }

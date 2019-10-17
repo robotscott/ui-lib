@@ -1,1 +1,10 @@
-<ui-charts></ui-charts>
+<button (click)="toggle()">toggle</button>
+
+<ui-charts
+  [data]="data"
+  [xAxis]="xAxis"
+  [yAxis]="yAxis"
+  [width]="width"
+  [height]="height"
+  [margin]="margin"
+></ui-charts>

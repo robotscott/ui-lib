@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-export interface Margin {
+interface Margin {
   top: number;
   right: number;
   bottom: number;
