@@ -52,15 +52,21 @@ export class AppComponent {
   public data = fox;
   public chartOptions = {
     xAxis: {
-      key: 'revenue'
-    },
-    yAxis: {
       key: 'titleShort'
     },
+    yAxis: {
+      key: 'revenue'
+    },
+    // xAxis: {
+    //   key: 'revenue'
+    // },
+    // yAxis: {
+    //   key: 'titleShort'
+    // },
     width: 300,
     height: 200,
     margin: {
-      top: 30,
+      top: 10,
       left: 10,
       bottom: 10,
       right: 10
@@ -70,10 +76,10 @@ export class AppComponent {
   private toggled = false;
 
   public toggle() {
-    // this.chartOptions = {
-    //   ...this.chartOptions,
-    //   width: this.toggled ? 400 : 200
-    // };
+    this.chartOptions = {
+      ...this.chartOptions,
+      width: this.toggled ? 400 : 200
+    };
 
     this.data = this.toggled ? fox : disney;
 

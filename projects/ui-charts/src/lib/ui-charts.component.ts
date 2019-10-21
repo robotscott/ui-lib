@@ -1,15 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxisDef, BaseChartService, Margin } from './services/base-chart.service';
+import { BaseChartService } from './services/base-chart.service';
+import { ChartOptions } from './models';
 
-interface ChartOptions {
-  xAxis?: AxisDef;
-  yAxis?: AxisDef;
-  width?: number;
-  height?: number;
-  margin?: Margin;
-}
 @Component({
   selector: 'ui-chart',
   template: `
@@ -40,6 +34,7 @@ export class UiChartsComponent implements AfterViewInit {
 
   @Input()
   set options(options: ChartOptions) {
+    // this.myChart.type(options.chartType);
     this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
     this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
     this.myChart.width(options.width);
@@ -53,8 +48,6 @@ export class UiChartsComponent implements AfterViewInit {
   }
 
   private drawChart(): void {
-    const randomColor = d3.interpolateSinebow(Math.random());
-    console.log(randomColor)
     if (this.chartContainer) { // only draw chart when element is ready
       d3
         .select(this.chartContainer.nativeElement)
