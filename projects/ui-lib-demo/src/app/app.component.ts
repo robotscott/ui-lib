@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 const fox = [
   {
@@ -47,34 +47,35 @@ const disney = [
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
   public data = fox;
-  public xAxis = {
-    key: 'revenue'
-  };
-  public yAxis = {
-    key: 'titleShort'
-  };
-  public width = 400;
-  public height = 300;
-  public margin = {
-    top: 30,
-    left: 10,
-    bottom: 10,
-    right: 10
+  public chartOptions = {
+    xAxis: {
+      key: 'revenue'
+    },
+    yAxis: {
+      key: 'titleShort'
+    },
+    width: 300,
+    height: 200,
+    margin: {
+      top: 30,
+      left: 10,
+      bottom: 10,
+      right: 10
+    }
   };
 
   private toggled = false;
 
-  constructor(
-  ) { }
-
-  ngOnInit(): void {
-  }
-
   public toggle() {
-    this.width = this.toggled ? 400 : 200;
+    // this.chartOptions = {
+    //   ...this.chartOptions,
+    //   width: this.toggled ? 400 : 200
+    // };
+
+    this.data = this.toggled ? fox : disney;
 
     this.toggled = !this.toggled;
   }

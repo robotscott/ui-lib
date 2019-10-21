@@ -24,8 +24,8 @@ export class BaseChartService {
 
     // Default config values
     let margin: Margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    let width = 200 - margin.right - margin.left;
-    let height = 100 - margin.top - margin.bottom;
+    let width = 300 - margin.right - margin.left;
+    let height = 200 - margin.top - margin.bottom;
     let x = d => d[0];
     let y = d => d[1];
 
@@ -34,18 +34,18 @@ export class BaseChartService {
     function chart(selection) {
       selection.each(function(data, index) {
 
-        const standardizedData: unknown[] = data.map(d => [x(d), y(d)]);
+        const standardizedData: any[] = data.map(d => [x(d), y(d)]);
 
         // Scales
         const xScale = d3
           .scaleLinear()
           .domain([0, d3.max(standardizedData, d => d[0])])
-          .range([0, innerWidth]);
+          .range([0, width]);
 
         const yScale = d3
           .scaleBand()
           .domain(standardizedData.map(d => d[1]))
-          .range([0, innerHeight])
+          .range([0, height])
           .padding(0.15);
 
         // Build chart base
@@ -61,16 +61,64 @@ export class BaseChartService {
 
         // Set chart base dimensions
         svg
-          .attr('width', width + margin.left + margin.right)
-          .attr('height', height + margin.top + margin.bottom);
+          .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+        // svg
+        //   .attr('width', width + margin.left + margin.right)
+        //   .attr('height', height + margin.top + margin.bottom);
 
         const g = svg
           .select('g.chart')
           .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+        // Join functions
+        function onEnter(enter) {
+          const barsEnter = enter
+            .append('g')
+            .attr('class', 'bar')
+            .attr('transform', d => `translate(0, ${yScale(d[1])})`);
+
+          barsEnter
+            .append('rect')
+            .attr('width', d => xScale(d[0]))
+            .attr('height', yScale.bandwidth())
+            .style('fill', d3.interpolateSinebow(Math.random()));
+
+          barsEnter
+            .append('text')
+            .text(d => d[1])
+            .attr('y', yScale.bandwidth() / 2)
+            .attr('dx', '0.35em');
+
+          return barsEnter;
+        }
+
+        function onUpdate(update) {
+          const barsUpdate = update.attr('transform', d => `translate(0, ${yScale(d[1])})`);
+
+          barsUpdate
+            .selectAll('rect')
+            .attr('width', d => xScale(d[0]))
+            .attr('height', yScale.bandwidth());
+
+          barsUpdate
+            .selectAll('text')
+            .text(d => d[1])
+            .attr('y', yScale.bandwidth() / 2)
+            .attr('dx', '0.35em');
+
+          return barsUpdate;
+        }
+
+        // Draw visual.
+        g.selectAll('.bar')
+          .data(standardizedData, d => d[1])
+          .join(onEnter, onUpdate, exit => exit.remove());
       });
     }
 
+    // Add configuration getter and setter methods.
     chart.width = function(_?: number) {
+
       return arguments.length ? ((width = _ - margin.left - margin.right), chart) : width;
     };
 
@@ -80,9 +128,9 @@ export class BaseChartService {
 
     chart.margin = function(_?: Margin) {
       if (arguments.length) {
-        // Update widths with new margins
+        // Update height and width with new margins
         const outerWidth = width + margin.left + margin.right;
-        const outerHeight = width + margin.top + margin.bottom;
+        const outerHeight = height + margin.top + margin.bottom;
         width = outerWidth - _.left - _.right;
         height = outerHeight - _.top - _.bottom;
 
@@ -94,6 +142,7 @@ export class BaseChartService {
     };
 
     chart.x = function(_?: (d: any) => any) {
+      console.log(_);
       return arguments.length ? ((x = _), chart) : x;
     };
 
