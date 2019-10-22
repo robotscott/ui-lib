@@ -67,8 +67,8 @@ export class AppComponent {
     height: 200,
     margin: {
       top: 10,
-      left: 10,
-      bottom: 10,
+      left: 50,
+      bottom: 25,
       right: 10
     }
   };
@@ -76,12 +76,18 @@ export class AppComponent {
   private toggled = false;
 
   public toggle() {
-    this.chartOptions = {
-      ...this.chartOptions,
-      width: this.toggled ? 400 : 200
+    // this.chartOptions = {
+    //   ...this.chartOptions,
+    //   width: this.toggled ? 400 : 200
+    // };
+
+    // this.data = this.toggled ? fox : disney;
+    this.data[0] = {
+      ...this.data[0],
+      revenue: 714361864
     };
 
-    this.data = this.toggled ? fox : disney;
+    this.data = [...this.data];
 
     this.toggled = !this.toggled;
   }

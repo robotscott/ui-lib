@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { BarChartProps } from '../models';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -21,21 +19,22 @@ export class BarChartService {
   public getYScale(data, height) {
     return d3
       .scaleLinear()
-      .domain([0, d3.max(data, d => d[0])])
+      .domain([0, d3.max(data, (d): number => d[0])])
       .range([0, height]);
   }
 
-  public getEnterFn(xScale, yScale) {
+  public getEnterFn(xScale, yScale, height) {
     return function(enter) {
+      console.log('enter :', enter);
       const barsEnter = enter
         .append('g')
         .attr('class', 'bar')
-        .attr('transform', d => `translate(${xScale(d[1])}, 0)`);
+        .attr('transform', d => `translate(${xScale(d[1])}, ${height - yScale(d[0])})`);
 
       barsEnter
         .append('rect')
-        .attr('height', d => yScale(d[0]))
         .attr('width', xScale.bandwidth())
+        .attr('height', d => yScale(d[0]))
         .style('fill', d3.interpolateSinebow(Math.random()));
 
       barsEnter
@@ -50,18 +49,20 @@ export class BarChartService {
 
   public getUpdateFn(xScale, yScale) {
     return function(update) {
+      console.log('update :', update);
+
       const barsUpdate = update.attr('transform', d => `translate(0, ${yScale(d[1])})`);
 
       barsUpdate
         .selectAll('rect')
-        .attr('width', d => xScale(d[0]))
-        .attr('height', yScale.bandwidth());
+        .attr('width', xScale.bandwidth())
+        .attr('height', d => yScale(d[0]));
 
-      barsUpdate
-        .selectAll('text')
-        .text(d => d[1])
-        .attr('y', yScale.bandwidth() / 2)
-        .attr('dx', '0.35em');
+      // barsUpdate
+      //   .selectAll('text')
+      //   .text(d => d[1])
+      //   .attr('y', yScale.bandwidth() / 2)
+      //   .attr('dx', '0.35em');
 
       return barsUpdate;
     };

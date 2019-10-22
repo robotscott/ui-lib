@@ -23,17 +23,19 @@ export class BaseChartService {
     let x = d => d[0];
     let y = d => d[1];
 
+    let xScale;
+    let yScale;
+    let onEnter;
+    let onUpdate;
+    let chartGroup;
+    let standardizedData;
+
     const chartService = this.barChartService;
+    const formatTicks = this.formatTicks;
 
     function chart(selection) {
-
       selection.each(function(data) {
-        const standardizedData: any[] = data.map(d => [x(d), y(d)]);
-
-        const xScale = chartService.getXScale(standardizedData, width);
-        const yScale = chartService.getYScale(standardizedData, height);
-        const onEnter = chartService.getEnterFn(xScale, yScale);
-        const onUpdate = chartService.getUpdateFn(xScale, yScale);
+        standardizedData = standardizeData(data);
 
         // Build chart base
         let svg = d3.select(this)
@@ -50,20 +52,14 @@ export class BaseChartService {
         svg
           .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
 
-        const g = svg
+        chartGroup = svg
           .select('g.chart')
           .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-        // Set axis
-        // const xAxis = d3
-        //   .axisBottom()
 
         // Draw visual
+        chart.update(chartGroup);
 
-
-        g.selectAll('.bar')
-          .data(standardizedData, d => d[1])
-          .join(onEnter, onUpdate, exit => exit.remove());
       });
     }
 
@@ -102,6 +98,54 @@ export class BaseChartService {
       return arguments.length ? ((y = _), chart) : y;
     };
 
+    chart.update = function(g, data = standardizedData) {
+      if (data) {
+        standardizedData = standardizeData(data);
+      }
+
+      xScale = chartService.getXScale(standardizedData, width);
+      yScale = chartService.getYScale(standardizedData, height);
+      onEnter = chartService.getEnterFn(xScale, yScale, height);
+      onUpdate = chartService.getUpdateFn(xScale, yScale);
+
+      // Set axis
+      const xAxis = d3
+        .axisBottom(xScale);
+
+      const drawXAxis = g
+        .append('g')
+        .attr('class', 'x axis')
+        .attr('transform', `translate(0, ${height})`)
+        .call(xAxis);
+
+      const yAxis = d3
+        .axisLeft(yScale)
+        .ticks(5)
+        .tickFormat(formatTicks);
+
+      const drawYAxis = g
+        .append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
+
+
+      g.selectAll('.bar')
+        .data(standardizedData, d => d[1])
+        .join(onEnter, onUpdate, exit => exit.remove());
+    };
+
+    function standardizeData(data) {
+      return data.map(d => [x(d), y(d)]);
+    }
+
     return chart;
+  }
+
+  private formatTicks(d: number): string {
+    return d3
+      .format('.2~s')(d)
+      .replace('M', ' mil')
+      .replace('G', ' bil')
+      .replace('T', ' tril');
   }
 }

@@ -28,32 +28,32 @@ export class UiChartsComponent implements AfterViewInit {
 
   @Input()
   set data(data: {}) {
+    console.log(data);
     this.datum = data;
-    this.drawChart();
+    this.updateChart();
   }
 
   @Input()
   set options(options: ChartOptions) {
-    // this.myChart.type(options.chartType);
     this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
     this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
     this.myChart.width(options.width);
     this.myChart.height(options.height);
     this.myChart.margin(options.margin);
-    this.drawChart();
+
+    this.updateChart();
   }
 
   ngAfterViewInit(): void {
-    this.drawChart();
+    this.updateChart();
   }
 
-  private drawChart(): void {
-    if (this.chartContainer) { // only draw chart when element is ready
+  private updateChart(): void {
+    if (this.chartContainer) {
       d3
         .select(this.chartContainer.nativeElement)
         .datum(this.datum)
         .call(this.myChart);
     }
   }
-
 }
