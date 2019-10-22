@@ -51,18 +51,18 @@ export class AppComponent {
 
   public data = fox;
   public chartOptions = {
-    xAxis: {
-      key: 'titleShort'
-    },
-    yAxis: {
-      key: 'revenue'
-    },
     // xAxis: {
-    //   key: 'revenue'
-    // },
-    // yAxis: {
     //   key: 'titleShort'
     // },
+    // yAxis: {
+    //   key: 'revenue'
+    // },
+    xAxis: {
+      key: 'revenue'
+    },
+    yAxis: {
+      key: 'titleShort'
+    },
     width: 300,
     height: 200,
     margin: {

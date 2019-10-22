@@ -23,14 +23,17 @@ export class BaseChartService {
     let x = d => d[0];
     let y = d => d[1];
 
-    const genDataHandlers = this.barChartService.barChart;
+    const chartService = this.barChartService;
 
     function chart(selection) {
 
       selection.each(function(data) {
         const standardizedData: any[] = data.map(d => [x(d), y(d)]);
 
-        const { onEnter, onUpdate } = genDataHandlers({ standardizedData, width, height });
+        const xScale = chartService.getXScale(standardizedData, width);
+        const yScale = chartService.getYScale(standardizedData, height);
+        const onEnter = chartService.getEnterFn(xScale, yScale);
+        const onUpdate = chartService.getUpdateFn(xScale, yScale);
 
         // Build chart base
         let svg = d3.select(this)
@@ -51,7 +54,13 @@ export class BaseChartService {
           .select('g.chart')
           .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+        // Set axis
+        // const xAxis = d3
+        //   .axisBottom()
+
         // Draw visual
+
+
         g.selectAll('.bar')
           .data(standardizedData, d => d[1])
           .join(onEnter, onUpdate, exit => exit.remove());

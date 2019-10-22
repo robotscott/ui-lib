@@ -10,42 +10,46 @@ export class BarChartService {
 
   constructor() { }
 
-  public barChart({ standardizedData, width, height }: BarChartProps) {
-    // Scales
-    const xScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(standardizedData, d => d[0])])
-      .range([0, width]);
-
-    const yScale = d3
+  public getXScale(data, width) {
+    return d3
       .scaleBand()
-      .domain(standardizedData.map(d => d[1]))
-      .range([0, height])
+      .domain(data.map(d => d[1]))
+      .range([0, width])
       .padding(0.15);
+  }
 
-    // Join functions
-    function onEnter(enter) {
+  public getYScale(data, height) {
+    return d3
+      .scaleLinear()
+      .domain([0, d3.max(data, d => d[0])])
+      .range([0, height]);
+  }
+
+  public getEnterFn(xScale, yScale) {
+    return function(enter) {
       const barsEnter = enter
         .append('g')
         .attr('class', 'bar')
-        .attr('transform', d => `translate(0, ${yScale(d[1])})`);
+        .attr('transform', d => `translate(${xScale(d[1])}, 0)`);
 
       barsEnter
         .append('rect')
-        .attr('width', d => xScale(d[0]))
-        .attr('height', yScale.bandwidth())
+        .attr('height', d => yScale(d[0]))
+        .attr('width', xScale.bandwidth())
         .style('fill', d3.interpolateSinebow(Math.random()));
 
       barsEnter
         .append('text')
         .text(d => d[1])
-        .attr('y', yScale.bandwidth() / 2)
+        .attr('y', xScale.bandwidth() / 2)
         .attr('dx', '0.35em');
 
       return barsEnter;
-    }
+    };
+  }
 
-    function onUpdate(update) {
+  public getUpdateFn(xScale, yScale) {
+    return function(update) {
       const barsUpdate = update.attr('transform', d => `translate(0, ${yScale(d[1])})`);
 
       barsUpdate
@@ -60,15 +64,6 @@ export class BarChartService {
         .attr('dx', '0.35em');
 
       return barsUpdate;
-    }
-
-    return { onEnter, onUpdate };
-  }
-
-  private barsScale(data, width) {
-    return d3
-      .scaleBand()
-      .domain([0, d3.max(data, d => d[0])])
-      .range([0, width]);
+    };
   }
 }
