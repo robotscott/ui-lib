@@ -28,9 +28,11 @@ export class UiChartsComponent implements AfterViewInit {
 
   @Input()
   set data(data: {}) {
-    console.log(data);
     this.datum = data;
-    this.updateChart();
+    this.myChart.data(data);
+    // if (this.chartContainer) {
+    //   this.myChart.data(data);
+    // }
   }
 
   @Input()
@@ -40,20 +42,12 @@ export class UiChartsComponent implements AfterViewInit {
     this.myChart.width(options.width);
     this.myChart.height(options.height);
     this.myChart.margin(options.margin);
-
-    this.updateChart();
   }
 
   ngAfterViewInit(): void {
-    this.updateChart();
-  }
-
-  private updateChart(): void {
-    if (this.chartContainer) {
-      d3
-        .select(this.chartContainer.nativeElement)
-        .datum(this.datum)
-        .call(this.myChart);
-    }
+    d3
+      .select(this.chartContainer.nativeElement)
+      .datum(this.datum)
+      .call(this.myChart);
   }
 }
