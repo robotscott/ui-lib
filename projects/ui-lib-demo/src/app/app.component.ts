@@ -82,12 +82,15 @@ export class AppComponent {
     // };
 
     // this.data = this.toggled ? fox : disney;
-    this.data[0] = {
-      ...this.data[0],
-      revenue: 714361864
-    };
+    // this.data[0] = {
+    //   ...this.data[0],
+    //   revenue: 714361864
+    // };
 
+    this.data[0].revenue = 714361864;
     this.data = [...this.data];
+
+    // this.data = [...this.data];
 
     this.toggled = !this.toggled;
   }

@@ -58,55 +58,22 @@ export class BaseChartService {
 
 
         // Draw visual
-        chart.update();
+        update();
 
       });
     }
 
     chart.data = function(_?) {
       if (arguments.length) {
-        const newData = standardizeData(_);
+        standardizedData = standardizeData(_);
+        console.log('new data: ', standardizedData);
 
-        setScales(newData);
-        setJoinFns();
-
-        standardizedData = newData;
-        console.log(standardizedData);
-
+        if (chartGroup) {
+          update();
+        }
         return chart;
       }
       return standardizedData;
-    };
-
-    chart.update = function() {
-
-      setScales(standardizedData);
-      setJoinFns();
-
-      // Set axis
-      const xAxis = d3
-        .axisBottom(xScale);
-
-      const drawXAxis = chartGroup
-        .append('g')
-        .attr('class', 'x axis')
-        .attr('transform', `translate(0, ${height})`)
-        .call(xAxis);
-
-      const yAxis = d3
-        .axisLeft(yScale)
-        .ticks(5)
-        .tickFormat(formatTicks);
-
-      const drawYAxis = chartGroup
-        .append('g')
-        .attr('class', 'y axis')
-        .call(yAxis);
-
-
-      chartGroup.selectAll('.bar')
-        .data(standardizedData, d => d[1])
-        .join(onEnter, onUpdate, exit => exit.remove());
     };
 
     chart.type = function(_?: ChartType) {
@@ -144,21 +111,50 @@ export class BaseChartService {
       return arguments.length ? ((y = _), chart) : y;
     };
 
+    function update() {
+
+      setScales();
+      setJoinFns();
+
+      // Set axis
+      const xAxis = d3
+        .axisBottom(xScale);
+
+      const drawXAxis = chartGroup
+        .append('g')
+        .attr('class', 'x axis')
+        .attr('transform', `translate(0, ${height})`)
+        .call(xAxis);
+
+      const yAxis = d3
+        .axisLeft(yScale)
+        .ticks(5)
+        .tickFormat(formatTicks);
+
+      const drawYAxis = chartGroup
+        .append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
+
+
+      chartGroup.selectAll('.bar')
+        .data(standardizedData, d => d)
+        .join(onEnter, onUpdate, exit => exit.remove());
+    }
+
     function standardizeData(data) {
       return data.map(d => [x(d), y(d)]);
     }
 
-    function setScales(data) {
-      xScale = chartService.getXScale(data, width);
-      yScale = chartService.getYScale(data, height);
+    function setScales() {
+      xScale = chartService.getXScale(standardizedData, width);
+      yScale = chartService.getYScale(standardizedData, height);
     }
 
     function setJoinFns() {
       onEnter = chartService.getEnterFn(xScale, yScale, height);
-      onUpdate = chartService.getUpdateFn(xScale, yScale);
+      onUpdate = chartService.getUpdateFn(xScale, yScale, height);
     }
-
-    function setJoinFns(x)
 
     return chart;
   }

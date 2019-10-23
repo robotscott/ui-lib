@@ -20,7 +20,7 @@ export class BarChartService {
     return d3
       .scaleLinear()
       .domain([0, d3.max(data, (d): number => d[0])])
-      .range([0, height]);
+      .range([height, 0]);
   }
 
   public getEnterFn(xScale, yScale, height) {
@@ -29,12 +29,15 @@ export class BarChartService {
       const barsEnter = enter
         .append('g')
         .attr('class', 'bar')
-        .attr('transform', d => `translate(${xScale(d[1])}, ${height - yScale(d[0])})`);
+        .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
       barsEnter
         .append('rect')
         .attr('width', xScale.bandwidth())
-        .attr('height', d => yScale(d[0]))
+        .attr('height', d => {
+          console.log('from enter: ', d, height, yScale(d[0]));
+          return height - yScale(d[0]);
+        })
         .style('fill', d3.interpolateSinebow(Math.random()));
 
       barsEnter
@@ -47,16 +50,20 @@ export class BarChartService {
     };
   }
 
-  public getUpdateFn(xScale, yScale) {
+  public getUpdateFn(xScale, yScale, height) {
     return function(update) {
-      console.log('update :', update);
+      console.log('update :', update, height);
 
-      const barsUpdate = update.attr('transform', d => `translate(0, ${yScale(d[1])})`);
+      const barsUpdate = update
+        .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
       barsUpdate
         .selectAll('rect')
         .attr('width', xScale.bandwidth())
-        .attr('height', d => yScale(d[0]));
+        .attr('height', d => {
+          console.log('from update: ', d, height, yScale(d[0]));
+          return height - yScale(d[0]);
+        });
 
       // barsUpdate
       //   .selectAll('text')
