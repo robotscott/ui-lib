@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
+import { ChartOptions, ChartType } from './models';
 import { BaseChartService } from './services/base-chart.service';
-import { ChartOptions } from './models';
 
 @Component({
   selector: 'ui-chart',
@@ -15,39 +15,50 @@ import { ChartOptions } from './models';
 })
 export class UiChartsComponent implements AfterViewInit {
 
+  private chartElement;
   private myChart;
-  private datum: {};
+  private initData: {};
 
   @ViewChild('chartContainer', { static: false }) private chartContainer: ElementRef;
 
   constructor(
     private baseChartService: BaseChartService
-  ) {
-    this.myChart = this.baseChartService.baseChart();
+  ) { }
+
+  @Input()
+  set type(type: ChartType) {
+    this.myChart = this.baseChartService.baseChart(type);
   }
 
   @Input()
   set data(data: {}) {
-    this.datum = data;
-    this.myChart.data(data);
-    // if (this.chartContainer) {
-    //   this.myChart.data(data);
-    // }
+    this.initData = data;
+    if (this.chartElement) {
+      this.myChart.data(data);
+    }
   }
 
   @Input()
   set options(options: ChartOptions) {
-    this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
-    this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
-    this.myChart.width(options.width);
-    this.myChart.height(options.height);
-    this.myChart.margin(options.margin);
+    if (this.myChart) {
+      this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
+      this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
+      this.myChart.width(options.width);
+      this.myChart.height(options.height);
+      this.myChart.margin(options.margin);
+    }
   }
 
   ngAfterViewInit(): void {
-    d3
-      .select(this.chartContainer.nativeElement)
-      .datum(this.datum)
-      .call(this.myChart);
+    this.setChartElement();
+  }
+
+  private setChartElement(): void {
+    if (this.myChart) {
+      this.chartElement = d3
+        .select(this.chartContainer.nativeElement)
+        .datum(this.initData)
+        .call(this.myChart);
+    }
   }
 }

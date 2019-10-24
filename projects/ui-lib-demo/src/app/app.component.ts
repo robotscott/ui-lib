@@ -49,14 +49,9 @@ const disney = [
 })
 export class AppComponent {
 
+  public type = 'line';
   public data = fox;
   public chartOptions = {
-    // xAxis: {
-    //   key: 'titleShort'
-    // },
-    // yAxis: {
-    //   key: 'revenue'
-    // },
     xAxis: {
       key: 'revenue'
     },
@@ -73,25 +68,14 @@ export class AppComponent {
     }
   };
 
-  private toggled = false;
-
-  public toggle() {
-    // this.chartOptions = {
-    //   ...this.chartOptions,
-    //   width: this.toggled ? 400 : 200
-    // };
-
-    // this.data = this.toggled ? fox : disney;
-    // this.data[0] = {
-    //   ...this.data[0],
-    //   revenue: 714361864
-    // };
-
-    this.data[0].revenue = 714361864;
-    this.data = [...this.data];
-
-    // this.data = [...this.data];
-
-    this.toggled = !this.toggled;
+  public updateData() {
+    this.data = this.data.map(d => {
+      const random = Math.random();
+      if (Math.round(random)) {
+        d.revenue = random * 3000000000;
+        return d;
+      }
+      return d;
+    });
   }
 }

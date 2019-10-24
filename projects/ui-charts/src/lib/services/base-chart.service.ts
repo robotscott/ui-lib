@@ -13,10 +13,11 @@ export class BaseChartService {
     private barChartService: BarChartService
   ) { }
 
-  public baseChart(): any {
+  public baseChart(type: ChartType): any {
+    const chartService = this.barChartService;
 
     // Default config values
-    let type: ChartType;
+    // let type: ChartType;
     let margin: Margin = { top: 0, right: 0, bottom: 0, left: 0 };
     let width = 300 - margin.right - margin.left;
     let height = 200 - margin.top - margin.bottom;
@@ -25,12 +26,15 @@ export class BaseChartService {
 
     let xScale;
     let yScale;
+    let drawXAxis;
+    let drawYAxis;
+    let xAxis;
+    let yAxis;
     let onEnter;
     let onUpdate;
     let chartGroup;
     let standardizedData;
 
-    const chartService = this.barChartService;
     const formatTicks = this.formatTicks;
 
     function chart(selection) {
@@ -56,6 +60,24 @@ export class BaseChartService {
           .select('g.chart')
           .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+        // Set axis
+        xAxis = d3
+          .axisBottom(xScale)
+          .tickSizeOuter(0);
+
+        drawXAxis = chartGroup
+          .append('g')
+          .attr('class', 'x axis')
+          .attr('transform', `translate(0, ${height})`);
+
+        yAxis = d3
+          .axisLeft(yScale)
+          .ticks(5)
+          .tickFormat(formatTicks);
+
+        drawYAxis = chartGroup
+          .append('g')
+          .attr('class', 'y axis');
 
         // Draw visual
         update();
@@ -114,32 +136,14 @@ export class BaseChartService {
     function update() {
 
       setScales();
-      setJoinFns();
-
-      // Set axis
-      const xAxis = d3
-        .axisBottom(xScale);
-
-      const drawXAxis = chartGroup
-        .append('g')
-        .attr('class', 'x axis')
-        .attr('transform', `translate(0, ${height})`)
-        .call(xAxis);
-
-      const yAxis = d3
-        .axisLeft(yScale)
-        .ticks(5)
-        .tickFormat(formatTicks);
-
-      const drawYAxis = chartGroup
-        .append('g')
-        .attr('class', 'y axis')
-        .call(yAxis);
-
+      setBarJoinFns();
 
       chartGroup.selectAll('.bar')
         .data(standardizedData, d => d)
         .join(onEnter, onUpdate, exit => exit.remove());
+
+      drawYAxis.call(yAxis.scale(yScale));
+      drawXAxis.call(xAxis.scale(xScale));
     }
 
     function standardizeData(data) {
@@ -151,7 +155,7 @@ export class BaseChartService {
       yScale = chartService.getYScale(standardizedData, height);
     }
 
-    function setJoinFns() {
+    function setBarJoinFns() {
       onEnter = chartService.getEnterFn(xScale, yScale, height);
       onUpdate = chartService.getUpdateFn(xScale, yScale, height);
     }

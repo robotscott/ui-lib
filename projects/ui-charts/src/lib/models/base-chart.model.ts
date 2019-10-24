@@ -1,4 +1,4 @@
-export type ChartType = 'verticalBar' | 'horizontalBar' | 'pie' | 'scatter';
+export type ChartType = 'bar' | 'line' | 'scatter' | 'pie';
 
 export interface AxisDef {
   key: string;

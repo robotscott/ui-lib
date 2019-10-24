@@ -20,7 +20,8 @@ export class BarChartService {
     return d3
       .scaleLinear()
       .domain([0, d3.max(data, (d): number => d[0])])
-      .range([height, 0]);
+      .range([height, 0])
+      .nice();
   }
 
   public getEnterFn(xScale, yScale, height) {
@@ -34,11 +35,8 @@ export class BarChartService {
       barsEnter
         .append('rect')
         .attr('width', xScale.bandwidth())
-        .attr('height', d => {
-          console.log('from enter: ', d, height, yScale(d[0]));
-          return height - yScale(d[0]);
-        })
-        .style('fill', d3.interpolateSinebow(Math.random()));
+        .attr('height', d => height - yScale(d[0]))
+        .style('fill', () => d3.interpolateSinebow(Math.random()));
 
       barsEnter
         .append('text')
@@ -60,10 +58,7 @@ export class BarChartService {
       barsUpdate
         .selectAll('rect')
         .attr('width', xScale.bandwidth())
-        .attr('height', d => {
-          console.log('from update: ', d, height, yScale(d[0]));
-          return height - yScale(d[0]);
-        });
+        .attr('height', d => height - yScale(d[0]));
 
       // barsUpdate
       //   .selectAll('text')

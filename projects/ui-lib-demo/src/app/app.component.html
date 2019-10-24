@@ -1,6 +1,7 @@
-<button (click)="toggle()">toggle</button>
+<button (click)="updateData()">Update Data</button>
 
 <ui-chart
+  [type]="type"
   [data]="data"
   [options]="chartOptions"
 ></ui-chart>
