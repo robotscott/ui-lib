@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 
 import { Margin, ChartType } from '../models';
 import { BarChartService } from './bar-chart.service';
+import { AxesGraphSettings } from '../models/axesGraph.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,23 +18,16 @@ export class BaseChartService {
     const chartService = this.barChartService;
 
     // Default config values
-    // let type: ChartType;
     let margin: Margin = { top: 0, right: 0, bottom: 0, left: 0 };
     let width = 300 - margin.right - margin.left;
     let height = 200 - margin.top - margin.bottom;
     let x = d => d[0];
     let y = d => d[1];
 
-    let xScale;
-    let yScale;
-    let drawXAxis;
-    let drawYAxis;
-    let xAxis;
-    let yAxis;
-    let onEnter;
-    let onUpdate;
     let chartGroup;
     let standardizedData;
+
+    let settings: AxesGraphSettings = {};
 
     const formatTicks = this.formatTicks;
 
@@ -61,23 +55,7 @@ export class BaseChartService {
           .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
         // Set axis
-        xAxis = d3
-          .axisBottom(xScale)
-          .tickSizeOuter(0);
-
-        drawXAxis = chartGroup
-          .append('g')
-          .attr('class', 'x axis')
-          .attr('transform', `translate(0, ${height})`);
-
-        yAxis = d3
-          .axisLeft(yScale)
-          .ticks(5)
-          .tickFormat(formatTicks);
-
-        drawYAxis = chartGroup
-          .append('g')
-          .attr('class', 'y axis');
+        settings = chartService.initChartSettings(settings, chartGroup, height);
 
         // Draw visual
         update();
@@ -135,15 +113,16 @@ export class BaseChartService {
 
     function update() {
 
-      setScales();
-      setBarJoinFns();
+      settings = chartService.updateChartSettings(settings, standardizedData, width, height);
 
       chartGroup.selectAll('.bar')
         .data(standardizedData, d => d)
-        .join(onEnter, onUpdate, exit => exit.remove());
+        .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 
-      drawYAxis.call(yAxis.scale(yScale));
-      drawXAxis.call(xAxis.scale(xScale));
+      // chartService.updateChart(settings, standardizedData, height, width);
+
+      settings.drawYAxis.call(settings.yAxis.scale(settings.yScale));
+      settings.drawXAxis.call(settings.xAxis.scale(settings.xScale));
     }
 
     function standardizeData(data) {
@@ -151,14 +130,14 @@ export class BaseChartService {
     }
 
     function setScales() {
-      xScale = chartService.getXScale(standardizedData, width);
-      yScale = chartService.getYScale(standardizedData, height);
+      settings.xScale = chartService.getXScale(standardizedData, width);
+      settings.yScale = chartService.getYScale(standardizedData, height);
     }
 
-    function setBarJoinFns() {
-      onEnter = chartService.getEnterFn(xScale, yScale, height);
-      onUpdate = chartService.getUpdateFn(xScale, yScale, height);
-    }
+    // function setBarJoinFns() {
+    //   onEnter = chartService.getEnterFn(settings.xScale, settings.yScale, height);
+    //   onUpdate = chartService.getUpdateFn(settings.xScale, settings.yScale, height);
+    // }
 
     return chart;
   }
@@ -170,4 +149,21 @@ export class BaseChartService {
       .replace('G', ' bil')
       .replace('T', ' tril');
   }
+
+  // private setChartService
+
+  // private barChartSettings() {
+  //   return {
+  //     xScale,
+  //     yScale,
+  //     drawXAxis,
+  //     drawYAxis,
+  //     xAxis,
+  //     yAxis,
+  //     onEnter,
+  //     onUpdate,
+  //     chartGroup,
+  //     standardizedData
+  //   }
+  // }
 }

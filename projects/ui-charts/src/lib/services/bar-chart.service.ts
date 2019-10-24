@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
+import { AxesGraphSettings } from '../models/axesGraph.model';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,45 @@ import * as d3 from 'd3';
 export class BarChartService {
 
   constructor() { }
+
+  public initChartSettings(settings, chartGroup, height): AxesGraphSettings {
+    return {
+      ...settings,
+      xAxis: d3
+        .axisBottom(settings.xScale)
+        .tickSizeOuter(0),
+      drawXAxis: chartGroup
+        .append('g')
+        .attr('class', 'x axis')
+        .attr('transform', `translate(0, ${height})`),
+      yAxis: d3
+        .axisLeft(settings.yScale)
+        .ticks(5)
+        .tickFormat(this.formatTicks),
+      drawYAxis: chartGroup
+        .append('g')
+        .attr('class', 'y axis')
+    };
+  }
+
+  public updateChartSettings(
+    settings: AxesGraphSettings,
+    data: {},
+    width: number,
+    height: number
+  ): AxesGraphSettings {
+    settings.xScale = this.getXScale(data, width);
+    settings.yScale = this.getYScale(data, height);
+    settings.onEnter = this.getEnterFn(settings.xScale, settings.yScale, height);
+    settings.onUpdate = this.getUpdateFn(settings.xScale, settings.yScale, height);
+    return settings;
+
+  }
+
+  public updateChart(settings, data, height, width) {
+    settings.xScale = this.getXScale(data, width);
+    settings.yScale = this.getYScale(data, height);
+  }
 
   public getXScale(data, width) {
     return d3
@@ -68,5 +108,13 @@ export class BarChartService {
 
       return barsUpdate;
     };
+  }
+
+  private formatTicks(d: number): string {
+    return d3
+      .format('.2~s')(d)
+      .replace('M', ' mil')
+      .replace('G', ' bil')
+      .replace('T', ' tril');
   }
 }
