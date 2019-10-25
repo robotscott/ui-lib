@@ -12,7 +12,19 @@ export interface Margin {
   left: number;
 }
 
-export interface ChartOptions {
+export interface DimensionSettings {
+  width?: number;
+  height?: number;
+  margin?: Margin;
+}
+
+export interface BaseChartSettings extends
+  DimensionSettings {
+  onEnter?: any;
+  onUpdate?: any;
+}
+
+export interface UIChartOptions {
   chartType?: ChartType;
   xAxis?: AxisDef;
   yAxis?: AxisDef;

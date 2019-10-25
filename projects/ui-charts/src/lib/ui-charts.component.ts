@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-import { ChartOptions, ChartType } from './models';
+import { UIChartOptions, ChartType } from './models';
 import { BaseChartService } from './services/base-chart.service';
 
 @Component({
@@ -39,7 +39,7 @@ export class UiChartsComponent implements AfterViewInit {
   }
 
   @Input()
-  set options(options: ChartOptions) {
+  set options(options: UIChartOptions) {
     if (this.myChart) {
       this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
       this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);

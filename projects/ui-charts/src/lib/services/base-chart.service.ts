@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { Margin, ChartType } from '../models';
+import { ChartType, Margin } from '../models';
 import { BarChartService } from './bar-chart.service';
-import { AxesGraphSettings } from '../models/axesGraph.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,25 +14,24 @@ export class BaseChartService {
   ) { }
 
   public baseChart(type: ChartType): any {
+    // Define chart service based on chart type
     const chartService = this.barChartService;
 
-    // Default config values
-    let margin: Margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    let width = 300 - margin.right - margin.left;
-    let height = 200 - margin.top - margin.bottom;
-    let x = d => d[0];
-    let y = d => d[1];
+    // Initiate settings specific to chart type
+    let settings = chartService.initSettings();
 
-    let chartGroup;
+    // Default dimensional values
+    settings.margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    settings.width = 300 - settings.margin.right - settings.margin.left;
+    settings.height = 200 - settings.margin.top - settings.margin.bottom;
+
+    // Additional closure variables
+    let baseChart;
     let standardizedData;
-
-    let settings: AxesGraphSettings = {};
-
-    const formatTicks = this.formatTicks;
 
     function chart(selection) {
       selection.each(function(data) {
-        standardizedData = standardizeData(data);
+        standardizedData = chartService.standardizeData(data, settings);
 
         // Build chart base
         let svg = d3.select(this)
@@ -48,14 +46,21 @@ export class BaseChartService {
 
         // Set chart base dimensions
         svg
-          .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+          .attr(
+            'viewBox',
+            `
+              0 0
+              ${settings.width + settings.margin.left + settings.margin.right}
+              ${settings.height + settings.margin.top + settings.margin.bottom}
+            `
+          );
 
-        chartGroup = svg
+        baseChart = svg
           .select('g.chart')
-          .attr('transform', `translate(${margin.left}, ${margin.top})`);
+          .attr('transform', `translate(${settings.margin.left}, ${settings.margin.top})`);
 
         // Set axis
-        settings = chartService.initChartSettings(settings, chartGroup, height);
+        chartService.updateSettingsWithBase(settings, baseChart);
 
         // Draw visual
         update();
@@ -65,10 +70,9 @@ export class BaseChartService {
 
     chart.data = function(_?) {
       if (arguments.length) {
-        standardizedData = standardizeData(_);
-        console.log('new data: ', standardizedData);
+        standardizedData = chartService.standardizeData(_, settings);
 
-        if (chartGroup) {
+        if (baseChart) {
           update();
         }
         return chart;
@@ -81,89 +85,41 @@ export class BaseChartService {
     };
 
     chart.width = function(_?: number) {
-      return arguments.length ? ((width = _ - margin.left - margin.right), chart) : width;
+      return arguments.length ? ((settings.width = _ - settings.margin.left - settings.margin.right), chart) : settings.width;
     };
 
     chart.height = function(_?: number) {
-      return arguments.length ? ((height = _ - margin.top - margin.bottom), chart) : height;
+      return arguments.length ? ((settings.height = _ - settings.margin.top - settings.margin.bottom), chart) : settings.height;
     };
 
     chart.margin = function(_?: Margin) {
       if (arguments.length) {
         // Update height and width with new margins
-        const outerWidth = width + margin.left + margin.right;
-        const outerHeight = height + margin.top + margin.bottom;
-        width = outerWidth - _.left - _.right;
-        height = outerHeight - _.top - _.bottom;
+        const outerWidth = settings.width + settings.margin.left + settings.margin.right;
+        const outerHeight = settings.height + settings.margin.top + settings.margin.bottom;
+        settings.width = outerWidth - _.left - _.right;
+        settings.height = outerHeight - _.top - _.bottom;
 
-        margin = _;
+        settings.margin = _;
 
         return chart;
       }
-      return arguments.length ? ((margin = _), chart) : margin;
+      return arguments.length ? ((settings.margin = _), chart) : settings.margin;
     };
 
-    chart.x = function(_?: (d: any) => any) {
-      return arguments.length ? ((x = _), chart) : x;
-    };
-
-    chart.y = function(_?: (d: any) => any) {
-      return arguments.length ? ((y = _), chart) : y;
-    };
+    chartService.addGetterSetterFns(chart, settings);
 
     function update() {
 
-      settings = chartService.updateChartSettings(settings, standardizedData, width, height);
+      settings = chartService.updateChartSettings(settings, standardizedData, settings.width, settings.height);
 
-      chartGroup.selectAll('.bar')
+      baseChart.selectAll('.bar')
         .data(standardizedData, d => d[1])
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 
-      // chartService.updateChart(settings, standardizedData, height, width);
-
-      settings.drawYAxis.call(settings.yAxis.scale(settings.yScale));
-      settings.drawXAxis.call(settings.xAxis.scale(settings.xScale));
+      chartService.updateChart(settings);
     }
-
-    function standardizeData(data) {
-      return data.map(d => [x(d), y(d)]);
-    }
-
-    // function setScales() {
-    //   settings.xScale = chartService.getXScale(standardizedData, width);
-    //   settings.yScale = chartService.getYScale(standardizedData, height);
-    // }
-
-    // function setBarJoinFns() {
-    //   onEnter = chartService.getEnterFn(settings.xScale, settings.yScale, height);
-    //   onUpdate = chartService.getUpdateFn(settings.xScale, settings.yScale, height);
-    // }
 
     return chart;
   }
-
-  private formatTicks(d: number): string {
-    return d3
-      .format('.2~s')(d)
-      .replace('M', ' mil')
-      .replace('G', ' bil')
-      .replace('T', ' tril');
-  }
-
-  // private setChartService
-
-  // private barChartSettings() {
-  //   return {
-  //     xScale,
-  //     yScale,
-  //     drawXAxis,
-  //     drawYAxis,
-  //     xAxis,
-  //     yAxis,
-  //     onEnter,
-  //     onUpdate,
-  //     chartGroup,
-  //     standardizedData
-  //   }
-  // }
 }
