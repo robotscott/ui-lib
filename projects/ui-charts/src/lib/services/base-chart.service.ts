@@ -116,7 +116,7 @@ export class BaseChartService {
       settings = chartService.updateChartSettings(settings, standardizedData, width, height);
 
       chartGroup.selectAll('.bar')
-        .data(standardizedData, d => d)
+        .data(standardizedData, d => d[1])
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 
       // chartService.updateChart(settings, standardizedData, height, width);
@@ -129,10 +129,10 @@ export class BaseChartService {
       return data.map(d => [x(d), y(d)]);
     }
 
-    function setScales() {
-      settings.xScale = chartService.getXScale(standardizedData, width);
-      settings.yScale = chartService.getYScale(standardizedData, height);
-    }
+    // function setScales() {
+    //   settings.xScale = chartService.getXScale(standardizedData, width);
+    //   settings.yScale = chartService.getYScale(standardizedData, height);
+    // }
 
     // function setBarJoinFns() {
     //   onEnter = chartService.getEnterFn(settings.xScale, settings.yScale, height);

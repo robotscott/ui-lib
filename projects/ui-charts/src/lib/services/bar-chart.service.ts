@@ -9,7 +9,11 @@ export class BarChartService {
 
   constructor() { }
 
-  public initChartSettings(settings, chartGroup, height): AxesGraphSettings {
+  public initChartSettings(
+    settings: AxesGraphSettings,
+    chartGroup,
+    height: number
+  ): AxesGraphSettings {
     return {
       ...settings,
       xAxis: d3
@@ -43,12 +47,17 @@ export class BarChartService {
 
   }
 
-  public updateChart(settings, data, height, width) {
+  public updateChart(
+    settings: AxesGraphSettings,
+    data: {},
+    height: number,
+    width: number
+  ) {
     settings.xScale = this.getXScale(data, width);
     settings.yScale = this.getYScale(data, height);
   }
 
-  public getXScale(data, width) {
+  private getXScale(data, width) {
     return d3
       .scaleBand()
       .domain(data.map(d => d[1]))
@@ -56,7 +65,7 @@ export class BarChartService {
       .padding(0.15);
   }
 
-  public getYScale(data, height) {
+  private getYScale(data, height) {
     return d3
       .scaleLinear()
       .domain([0, d3.max(data, (d): number => d[0])])
@@ -64,9 +73,8 @@ export class BarChartService {
       .nice();
   }
 
-  public getEnterFn(xScale, yScale, height) {
+  private getEnterFn(xScale, yScale, height) {
     return function(enter) {
-      console.log('enter :', enter);
       const barsEnter = enter
         .append('g')
         .attr('class', 'bar')
@@ -74,6 +82,7 @@ export class BarChartService {
 
       barsEnter
         .append('rect')
+        .data(d => d)
         .attr('width', xScale.bandwidth())
         .attr('height', d => height - yScale(d[0]))
         .style('fill', () => d3.interpolateSinebow(Math.random()));
@@ -88,23 +97,16 @@ export class BarChartService {
     };
   }
 
-  public getUpdateFn(xScale, yScale, height) {
+  private getUpdateFn(xScale, yScale, height) {
     return function(update) {
-      console.log('update :', update, height);
-
       const barsUpdate = update
+        .transition()
         .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
       barsUpdate
-        .selectAll('rect')
+        .select('rect')
         .attr('width', xScale.bandwidth())
         .attr('height', d => height - yScale(d[0]));
-
-      // barsUpdate
-      //   .selectAll('text')
-      //   .text(d => d[1])
-      //   .attr('y', yScale.bandwidth() / 2)
-      //   .attr('dx', '0.35em');
 
       return barsUpdate;
     };
