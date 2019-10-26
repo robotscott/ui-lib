@@ -49,7 +49,7 @@ const disney = [
 })
 export class AppComponent {
 
-  public type = 'line';
+  public type = 'bar';
   public data = fox;
   public chartOptions = {
     xAxis: {

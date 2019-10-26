@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { ChartType, Margin } from '../models';
+import { BaseChartSettings, ChartType, Margin } from '../models';
+import { ChartTypeService } from '../models/chartType.model';
 import { BarChartService } from './bar-chart.service';
 
 @Injectable({
@@ -15,15 +16,13 @@ export class BaseChartService {
 
   public baseChart(type: ChartType): any {
     // Define chart service based on chart type
-    const chartService = this.barChartService;
+    const chartService = this.setChartService(type);
 
     // Initiate settings specific to chart type
     let settings = chartService.initSettings();
 
     // Default dimensional values
-    settings.margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    settings.width = 300 - settings.margin.right - settings.margin.left;
-    settings.height = 200 - settings.margin.top - settings.margin.bottom;
+    this.setDimensions(settings);
 
     // Additional closure variables
     let baseChart;
@@ -31,6 +30,7 @@ export class BaseChartService {
 
     function chart(selection) {
       selection.each(function(data) {
+        // Standardize data for chart type
         standardizedData = chartService.standardizeData(data, settings);
 
         // Build chart base
@@ -45,6 +45,7 @@ export class BaseChartService {
         svg = svg.merge(svgEnter);
 
         // Set chart base dimensions
+        // viewBox use for responsive scaling
         svg
           .attr(
             'viewBox',
@@ -68,7 +69,8 @@ export class BaseChartService {
       });
     }
 
-    chart.data = function(_?) {
+    // Add setters and getters for base chart
+    chart.data = function(_?: {}) {
       if (arguments.length) {
         standardizedData = chartService.standardizeData(_, settings);
 
@@ -92,7 +94,43 @@ export class BaseChartService {
       return arguments.length ? ((settings.height = _ - settings.margin.top - settings.margin.bottom), chart) : settings.height;
     };
 
-    chart.margin = function(_?: Margin) {
+    chart.margin = this.marginGetSet(chart, settings);
+
+    // Add setters and getters for chart type
+    chartService.addSetGetFns(chart, settings);
+
+    function update() {
+
+      settings = chartService.updateChartSettings(settings, standardizedData);
+
+      baseChart.selectAll('.bar')
+        .data(standardizedData, d => d[1])
+        .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
+
+      chartService.updateChart(settings);
+    }
+
+    return chart;
+  }
+
+  private setChartService(type: ChartType): ChartTypeService {
+    switch (type) {
+      case 'bar':
+        return this.barChartService;
+      default:
+        throw new Error('Chart type must be set');
+    }
+  }
+
+  private setDimensions(settings: BaseChartSettings): BaseChartSettings {
+    settings.margin = { top: 0, right: 0, bottom: 0, left: 0 };
+    settings.width = 300 - settings.margin.right - settings.margin.left;
+    settings.height = 200 - settings.margin.top - settings.margin.bottom;
+    return;
+  }
+
+  private marginGetSet(chart, settings: BaseChartSettings) {
+    return function(_?: Margin) {
       if (arguments.length) {
         // Update height and width with new margins
         const outerWidth = settings.width + settings.margin.left + settings.margin.right;
@@ -106,20 +144,5 @@ export class BaseChartService {
       }
       return arguments.length ? ((settings.margin = _), chart) : settings.margin;
     };
-
-    chartService.addGetterSetterFns(chart, settings);
-
-    function update() {
-
-      settings = chartService.updateChartSettings(settings, standardizedData, settings.width, settings.height);
-
-      baseChart.selectAll('.bar')
-        .data(standardizedData, d => d[1])
-        .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
-
-      chartService.updateChart(settings);
-    }
-
-    return chart;
   }
 }

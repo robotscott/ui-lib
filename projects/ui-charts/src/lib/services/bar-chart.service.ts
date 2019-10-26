@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
 import { AxesGraphSettings } from '../models/axesGraph.model';
+import { ChartTypeService } from '../models/chartType.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BarChartService {
+export class BarChartService implements ChartTypeService {
 
   constructor() { }
 
-  public initSettings() {
+  public initSettings(): AxesGraphSettings {
     return {
       x: d => d[0],
       y: d => d[1]
@@ -22,23 +23,23 @@ export class BarChartService {
     baseChart,
   ): AxesGraphSettings {
     settings.xAxis = d3
-        .axisBottom(settings.xScale)
-        .tickSizeOuter(0);
+      .axisBottom(settings.xScale)
+      .tickSizeOuter(0);
     settings.drawXAxis = baseChart
-        .append('g')
-        .attr('class', 'x axis')
-        .attr('transform', `translate(0, ${settings.height})`);
+      .append('g')
+      .attr('class', 'x axis')
+      .attr('transform', `translate(0, ${settings.height})`);
     settings.yAxis = d3
-        .axisLeft(settings.yScale)
-        .ticks(5)
-        .tickFormat(this.formatTicks);
+      .axisLeft(settings.yScale)
+      .ticks(5)
+      .tickFormat(this.formatTicks);
     settings.drawYAxis = baseChart
-        .append('g')
-        .attr('class', 'y axis');
+      .append('g')
+      .attr('class', 'y axis');
     return settings;
   }
 
-  public addGetterSetterFns(chart, settings) {
+  public addSetGetFns(chart, settings) {
     chart.x = function(_?: (d: any) => any) {
       return arguments.length ? ((settings.x = _), chart) : settings.x;
     };
@@ -50,7 +51,7 @@ export class BarChartService {
     return chart;
   }
 
-  public standardizeData(data, {x, y}) {
+  public standardizeData(data, { x, y }: AxesGraphSettings) {
     return data.map(d => [x(d), y(d)]);
   }
 
@@ -71,6 +72,7 @@ export class BarChartService {
   ) {
     settings.drawYAxis.call(settings.yAxis.scale(settings.yScale));
     settings.drawXAxis.call(settings.xAxis.scale(settings.xScale));
+    return settings;
   }
 
   private getXScale(data, width) {
@@ -89,7 +91,7 @@ export class BarChartService {
       .nice();
   }
 
-  private getEnterFn({xScale, yScale, height}) {
+  private getEnterFn({ xScale, yScale, height }: AxesGraphSettings) {
     return function(enter) {
       const barsEnter = enter
         .append('g')
@@ -113,7 +115,7 @@ export class BarChartService {
     };
   }
 
-  private getUpdateFn({xScale, yScale, height}) {
+  private getUpdateFn({ xScale, yScale, height }: AxesGraphSettings) {
     return function(update) {
       const barsUpdate = update
         .transition()
