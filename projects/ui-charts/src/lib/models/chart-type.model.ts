@@ -1,10 +1,10 @@
-import { AxesGraphSettings } from './axesGraph.model';
+import { AxesGraphSettings } from './axes-graph.model';
 
 type ChartTypeSettings =
   AxesGraphSettings;
 
 export interface ChartTypeService {
-  initSettings(): ChartTypeSettings;
+  // initSettings(): ChartTypeSettings;
   updateSettingsWithBase(
     settings: ChartTypeSettings,
     baseChart
