@@ -69,6 +69,10 @@ export class AppComponent {
   };
 
   public updateData() {
+    // this.chartOptions = {
+    //   ...this.chartOptions,
+    //   height: 500
+    // };
     this.data = this.data.map(d => {
       const random = Math.random();
       if (Math.round(random)) {

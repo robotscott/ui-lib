@@ -12,4 +12,5 @@ export interface ChartTypeService {
   standardizeData(data: {}, {x, y}: ChartTypeSettings);
   updateChartSettings(settings: ChartTypeSettings, data: {}): ChartTypeSettings;
   updateChart(settings: ChartTypeSettings): ChartTypeSettings;
+  setJoinFns(settings: ChartTypeSettings): ChartTypeSettings;
 }

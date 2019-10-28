@@ -54,10 +54,14 @@ export class BarChartService implements ChartTypeService {
   ): AxesGraphSettings {
     settings.xScale = this.getXScale(data, settings.width);
     settings.yScale = this.getYScale(data, settings.height);
+    return settings;
+
+  }
+
+  public setJoinFns(settings: AxesGraphSettings): AxesGraphSettings {
     settings.onEnter = this.getEnterFn(settings);
     settings.onUpdate = this.getUpdateFn(settings);
     return settings;
-
   }
 
   public updateChart(

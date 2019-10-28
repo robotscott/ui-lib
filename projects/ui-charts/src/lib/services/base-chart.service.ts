@@ -19,7 +19,7 @@ export class BaseChartService {
     const chartService = this.setChartService(type);
 
     // Initiate settings specific to chart type
-    let settings: BaseChartSettings = {};
+    const settings: BaseChartSettings = {};
 
     // Default dimensional values
     this.setDimensions(settings);
@@ -27,6 +27,7 @@ export class BaseChartService {
     // Additional closure variables
     let baseChart;
     let standardizedData;
+    const update = this.setUpdateFn(chartService, settings);
 
     function chart(selection) {
       selection.each(function(data) {
@@ -60,11 +61,11 @@ export class BaseChartService {
           .select('g.chart')
           .attr('transform', `translate(${settings.margin.left}, ${settings.margin.top})`);
 
-        // Set axis
+        // Update setting for chart type that require baseChart
         chartService.updateSettingsWithBase(settings, baseChart);
 
         // Draw visual
-        update();
+        update(baseChart, standardizedData);
 
       });
     }
@@ -75,7 +76,7 @@ export class BaseChartService {
         standardizedData = chartService.standardizeData(_, settings);
 
         if (baseChart) {
-          update();
+          update(baseChart, standardizedData);
         }
         return chart;
       }
@@ -98,17 +99,6 @@ export class BaseChartService {
 
     // Add setters and getters for chart type
     chartService.addSetGetFns(chart, settings);
-
-    function update() {
-
-      settings = chartService.updateChartSettings(settings, standardizedData);
-
-      baseChart.selectAll('.data-node')
-        .data(standardizedData, d => d[1])
-        .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
-
-      chartService.updateChart(settings);
-    }
 
     return chart;
   }
@@ -143,6 +133,19 @@ export class BaseChartService {
         return chart;
       }
       return arguments.length ? ((settings.margin = _), chart) : settings.margin;
+    };
+  }
+
+  private setUpdateFn(chartService, settings) {
+    return function(baseChart, standardizedData) {
+      chartService.updateChartSettings(settings, standardizedData);
+      chartService.setJoinFns(settings);
+
+      baseChart.selectAll('.data-node')
+        .data(standardizedData, d => d[1])
+        .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
+
+      chartService.updateChart(settings);
     };
   }
 }
