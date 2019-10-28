@@ -103,7 +103,7 @@ export class BaseChartService {
 
       settings = chartService.updateChartSettings(settings, standardizedData);
 
-      baseChart.selectAll('.bar')
+      baseChart.selectAll('.data-node')
         .data(standardizedData, d => d[1])
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 

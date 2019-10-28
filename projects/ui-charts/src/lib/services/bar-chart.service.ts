@@ -95,7 +95,7 @@ export class BarChartService implements ChartTypeService {
     return function(enter) {
       const barsEnter = enter
         .append('g')
-        .attr('class', 'bar')
+        .attr('class', 'data-node')
         .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
       barsEnter
