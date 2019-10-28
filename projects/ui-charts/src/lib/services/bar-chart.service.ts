@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxesGraphSettings } from '../models/axesGraph.model';
-import { ChartTypeService } from '../models/chartType.model';
+import { AxesGraphSettings } from '../models/axes-graph.model';
+import { ChartTypeService } from '../models/chart-type.model';
 
 @Injectable({
   providedIn: 'root'

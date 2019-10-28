@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
 import { BaseChartSettings, ChartType, Margin } from '../models';
-import { ChartTypeService } from '../models/chartType.model';
+import { ChartTypeService } from '../models/chart-type.model';
 import { BarChartService } from './bar-chart.service';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class BaseChartService {
     const chartService = this.setChartService(type);
 
     // Initiate settings specific to chart type
-    let settings = chartService.initSettings();
+    let settings: BaseChartSettings = {};
 
     // Default dimensional values
     this.setDimensions(settings);
