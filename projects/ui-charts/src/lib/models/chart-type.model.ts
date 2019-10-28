@@ -4,7 +4,6 @@ type ChartTypeSettings =
   AxesGraphSettings;
 
 export interface ChartTypeService {
-  // initSettings(): ChartTypeSettings;
   updateSettingsWithBase(
     settings: ChartTypeSettings,
     baseChart

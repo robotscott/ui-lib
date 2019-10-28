@@ -11,13 +11,6 @@ export class BarChartService implements ChartTypeService {
 
   constructor() { }
 
-  public initSettings(): AxesGraphSettings {
-    return {
-      x: d => d[0],
-      y: d => d[1]
-    };
-  }
-
   public updateSettingsWithBase(
     settings: AxesGraphSettings,
     baseChart,
