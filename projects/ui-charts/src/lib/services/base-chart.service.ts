@@ -40,7 +40,7 @@ export class BaseChartService {
 
         const svgEnter = svg.enter().append('svg');
 
-        svgEnter.append('g').attr('class', 'chart');
+        svgEnter.append('g').attr('class', 'chart ' + type);
 
         svg = svg.merge(svgEnter);
 
