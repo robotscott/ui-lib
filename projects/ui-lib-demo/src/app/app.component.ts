@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { from, BehaviorSubject } from 'rxjs';
 
 const fox = [
   {
@@ -48,9 +49,10 @@ const disney = [
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  public fox = new BehaviorSubject<{}[]>(fox);
+  public disney = new BehaviorSubject<{}[]>(disney);
 
   public type = 'bar';
-  public data = fox;
   public chartOptions = {
     xAxis: {
       key: 'revenue'
@@ -68,12 +70,13 @@ export class AppComponent {
     }
   };
 
-  public updateData() {
+  public updateData(data: BehaviorSubject<{}[]>) {
     // this.chartOptions = {
     //   ...this.chartOptions,
     //   height: 500
     // };
-    this.data = this.data.map(d => {
+    const currentData = data.getValue();
+    const newData = currentData.map((d: any) => {
       const random = Math.random();
       if (Math.round(random)) {
         d.revenue = random * 3000000000;
@@ -81,5 +84,16 @@ export class AppComponent {
       }
       return d;
     });
+
+    data.next(newData);
+
+    // data = data.map(d => {
+    //   const random = Math.random();
+    //   if (Math.round(random)) {
+    //     d.revenue = random * 3000000000;
+    //     return d;
+    //   }
+    //   return d;
+    // });
   }
 }
