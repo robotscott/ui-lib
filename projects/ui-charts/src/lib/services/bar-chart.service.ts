@@ -11,6 +11,10 @@ export class BarChartService implements ChartTypeService {
 
   constructor() { }
 
+  public standardizeData(data, { x, y }: AxesGraphSettings) {
+    return data.map(d => [x(d), y(d)]);
+  }
+
   public updateSettingsWithBase(
     settings: AxesGraphSettings,
     baseChart,
@@ -42,10 +46,6 @@ export class BarChartService implements ChartTypeService {
     };
 
     return chart;
-  }
-
-  public standardizeData(data, { x, y }: AxesGraphSettings) {
-    return data.map(d => [x(d), y(d)]);
   }
 
   public updateChartSettings(

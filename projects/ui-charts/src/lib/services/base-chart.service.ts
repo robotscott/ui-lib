@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import { BaseChartSettings, ChartType, Margin } from '../models';
 import { ChartTypeService } from '../models/chart-type.model';
 import { BarChartService } from './bar-chart.service';
+import { DimensionsService } from './dimensions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,18 +12,17 @@ import { BarChartService } from './bar-chart.service';
 export class BaseChartService {
 
   constructor(
-    private barChartService: BarChartService
+    private barChartService: BarChartService,
+    private dimensionsService: DimensionsService
   ) { }
 
   public baseChart(type: ChartType): any {
     // Define chart service based on chart type
     const chartService = this.setChartService(type);
+    const dimensionsService = this.dimensionsService;
+    const initBaseChart = this.initBaseChart(this.dimensionsService);
 
-    // Initiate settings specific to chart type
-    const settings: BaseChartSettings = {};
-
-    // Default dimensional values
-    this.setDimensions(settings);
+    const settings: BaseChartSettings = this.initSettings();
 
     // Additional closure variables
     let baseChart;
@@ -35,31 +35,7 @@ export class BaseChartService {
         standardizedData = chartService.standardizeData(data, settings);
 
         // Build chart base
-        let svg = d3.select(this)
-          .selectAll('svg')
-          .data([standardizedData]);
-
-        const svgEnter = svg.enter().append('svg');
-
-        svgEnter.append('g').attr('class', 'chart ' + type);
-
-        svg = svg.merge(svgEnter);
-
-        // Set chart base dimensions
-        // viewBox use for responsive scaling
-        svg
-          .attr(
-            'viewBox',
-            `
-              0 0
-              ${settings.width + settings.margin.left + settings.margin.right}
-              ${settings.height + settings.margin.top + settings.margin.bottom}
-            `
-          );
-
-        baseChart = svg
-          .select('g.chart')
-          .attr('transform', `translate(${settings.margin.left}, ${settings.margin.top})`);
+        baseChart = initBaseChart(this, standardizedData, type, settings);
 
         // Update setting for chart type that require baseChart
         chartService.updateSettingsWithBase(settings, baseChart);
@@ -83,24 +59,37 @@ export class BaseChartService {
       return standardizedData;
     };
 
-    chart.type = function(_?: ChartType) {
-      return arguments.length ? ((type = _), chart) : type;
-    };
-
-    chart.width = function(_?: number) {
-      return arguments.length ? ((settings.width = _ - settings.margin.left - settings.margin.right), chart) : settings.width;
-    };
-
-    chart.height = function(_?: number) {
-      return arguments.length ? ((settings.height = _ - settings.margin.top - settings.margin.bottom), chart) : settings.height;
-    };
-
-    chart.margin = this.marginGetSet(chart, settings);
+    // Add setters and getters for dimensions
+    dimensionsService.addSetGetFns(chart, settings);
 
     // Add setters and getters for chart type
     chartService.addSetGetFns(chart, settings);
 
     return chart;
+  }
+
+  private initBaseChart(dimensionsService) {
+    return function(container, standardizedData, type, settings) {
+      let svg = d3.select(container)
+        .selectAll('svg')
+        .data([standardizedData]);
+
+      const svgEnter = svg.enter().append('svg');
+
+      svgEnter.append('g').attr('class', 'chart ' + type);
+
+      svg = svg.merge(svgEnter);
+
+      // Set chart base dimensions
+      dimensionsService.setWidthHeight(svg, settings);
+
+      const baseChart = dimensionsService.applyChartMargins(
+        svg.select('g.chart'),
+        settings
+      );
+
+      return baseChart;
+    };
   }
 
   private setChartService(type: ChartType): ChartTypeService {
@@ -112,28 +101,12 @@ export class BaseChartService {
     }
   }
 
-  private setDimensions(settings: BaseChartSettings): BaseChartSettings {
-    settings.margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    settings.width = 300 - settings.margin.right - settings.margin.left;
-    settings.height = 200 - settings.margin.top - settings.margin.bottom;
-    return;
-  }
+  private initSettings(): BaseChartSettings {
+    const settings = {};
 
-  private marginGetSet(chart, settings: BaseChartSettings) {
-    return function(_?: Margin) {
-      if (arguments.length) {
-        // Update height and width with new margins
-        const outerWidth = settings.width + settings.margin.left + settings.margin.right;
-        const outerHeight = settings.height + settings.margin.top + settings.margin.bottom;
-        settings.width = outerWidth - _.left - _.right;
-        settings.height = outerHeight - _.top - _.bottom;
-
-        settings.margin = _;
-
-        return chart;
-      }
-      return arguments.length ? ((settings.margin = _), chart) : settings.margin;
-    };
+    // add default dimensions
+    this.dimensionsService.setDefaultChartDimensions(settings);
+    return settings;
   }
 
   private setUpdateFn(chartService, settings) {
@@ -148,4 +121,6 @@ export class BaseChartService {
       chartService.updateChart(settings);
     };
   }
+
+
 }
