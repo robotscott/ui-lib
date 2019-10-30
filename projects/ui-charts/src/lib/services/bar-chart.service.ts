@@ -3,13 +3,16 @@ import * as d3 from 'd3';
 
 import { AxesGraphSettings } from '../models/axes-graph.model';
 import { ChartTypeService } from '../models/chart-type.model';
+import { AxesService } from './axes.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BarChartService implements ChartTypeService {
 
-  constructor() { }
+  constructor(
+    private axesService: AxesService
+  ) { }
 
   public standardizeData(data, { x, y }: AxesGraphSettings) {
     return data.map(d => [x(d), y(d)]);
@@ -17,23 +20,9 @@ export class BarChartService implements ChartTypeService {
 
   public updateSettingsWithBase(
     settings: AxesGraphSettings,
-    baseChart,
+    baseChart
   ): AxesGraphSettings {
-    settings.xAxis = d3
-      .axisBottom(settings.xScale)
-      .tickSizeOuter(0);
-    settings.drawXAxis = baseChart
-      .append('g')
-      .attr('class', 'x axis')
-      .attr('transform', `translate(0, ${settings.height})`);
-    settings.yAxis = d3
-      .axisLeft(settings.yScale)
-      .ticks(5)
-      .tickFormat(this.formatTicks);
-    settings.drawYAxis = baseChart
-      .append('g')
-      .attr('class', 'y axis');
-    return settings;
+    return this.axesService.initAxis(settings, baseChart);
   }
 
   public addSetGetFns(chart, settings) {
@@ -45,6 +34,14 @@ export class BarChartService implements ChartTypeService {
       return arguments.length ? ((settings.y = _), chart) : settings.y;
     };
 
+    chart.xTickTransform = function(_?: (d: any) => any) {
+      return arguments.length ? ((settings.xTickTransform = _), chart) : settings.xTickTransform;
+    };
+
+    chart.yTickTransform = function(_?: (d: any) => any) {
+      return arguments.length ? ((settings.yTickTransform = _), chart) : settings.yTickTransform;
+    };
+
     return chart;
   }
 
@@ -52,9 +49,7 @@ export class BarChartService implements ChartTypeService {
     settings: AxesGraphSettings,
     data: {}
   ): AxesGraphSettings {
-    settings.xScale = this.getXScale(data, settings.width);
-    settings.yScale = this.getYScale(data, settings.height);
-    return settings;
+    return this.axesService.setScales(settings, data);
 
   }
 
@@ -67,25 +62,7 @@ export class BarChartService implements ChartTypeService {
   public updateChart(
     settings: AxesGraphSettings,
   ) {
-    settings.drawYAxis.call(settings.yAxis.scale(settings.yScale));
-    settings.drawXAxis.call(settings.xAxis.scale(settings.xScale));
-    return settings;
-  }
-
-  private getXScale(data, width) {
-    return d3
-      .scaleBand()
-      .domain(data.map(d => d[1]))
-      .range([0, width])
-      .padding(0.15);
-  }
-
-  private getYScale(data, height) {
-    return d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d): number => d[0])])
-      .range([height, 0])
-      .nice();
+    return this.axesService.updateAxis(settings);
   }
 
   private getEnterFn({ xScale, yScale, height }: AxesGraphSettings) {

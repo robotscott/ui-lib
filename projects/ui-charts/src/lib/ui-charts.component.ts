@@ -46,6 +46,8 @@ export class UiChartsComponent implements AfterViewInit {
       this.myChart.width(options.width);
       this.myChart.height(options.height);
       this.myChart.margin(options.margin);
+      this.myChart.xTickTransform(this.xTickTransform);
+      this.myChart.yTickTransform(undefined);
     }
   }
 
@@ -60,5 +62,16 @@ export class UiChartsComponent implements AfterViewInit {
         .datum(this.initData)
         .call(this.myChart);
     }
+  }
+
+  /*
+  TEMPORARY ASSIGNED HERE WHILE DECIDING HOW TO IMPLEMENT TICK TRANSFORMATION
+   */
+  private xTickTransform(d: number): string {
+    return d3
+      .format('.2~s')(d)
+      .replace('M', ' mil')
+      .replace('G', ' bil')
+      .replace('T', ' tril');
   }
 }

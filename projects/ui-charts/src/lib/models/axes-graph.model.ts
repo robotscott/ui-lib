@@ -9,8 +9,8 @@ export type AxesSettingsKeys =
   'drawYAxis' |
   'xAxis' |
   'yAxis' |
-  'onEnter' |
-  'onUpdate';
+  'xTickTransform' |
+  'yTickTransform';
 
 // export type AxesGraphSettings = {
 //   [K in AxesSettingsKeys]?: any;
@@ -25,4 +25,6 @@ export interface AxesGraphSettings extends BaseChartSettings {
   drawYAxis?: any;
   xAxis?: any;
   yAxis?: any;
+  xTickTransform?(d): number | string;
+  yTickTransform?(d): number | string;
 }
