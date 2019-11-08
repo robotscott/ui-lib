@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { BaseChartSettings, ChartType, Margin } from '../models';
+import { BaseChartSettings, ChartType } from '../models';
 import { ChartTypeService } from '../models/chart-type.model';
-import { BarChartService } from './bar-chart.service';
+import { AxesChartService } from './axes-chart.service';
 import { DimensionsService } from './dimensions.service';
 
 @Injectable({
@@ -12,7 +12,7 @@ import { DimensionsService } from './dimensions.service';
 export class BaseChartService {
 
   constructor(
-    private barChartService: BarChartService,
+    private axesChartService: AxesChartService,
     private dimensionsService: DimensionsService
   ) { }
 
@@ -22,7 +22,7 @@ export class BaseChartService {
     const dimensionsService = this.dimensionsService;
     const initBaseChart = this.initBaseChart(this.dimensionsService);
 
-    const settings: BaseChartSettings = this.initSettings();
+    const settings: BaseChartSettings = this.initSettings(type);
 
     // Additional closure variables
     let baseChart;
@@ -95,24 +95,24 @@ export class BaseChartService {
   private setChartService(type: ChartType): ChartTypeService {
     switch (type) {
       case 'bar':
-        return this.barChartService;
+        return this.axesChartService;
       default:
         throw new Error('Chart type must be set');
     }
   }
 
-  private initSettings(): BaseChartSettings {
-    const settings = {};
-
-    // add default dimensions
-    this.dimensionsService.setDefaultChartDimensions(settings);
-    return settings;
+  private initSettings(type: ChartType): BaseChartSettings {
+    const dimensions = this.dimensionsService.getDefaultChartDimensions();
+    return {
+      ...dimensions,
+      type
+    };
   }
 
   private setUpdateFn(chartService, settings) {
     return function(baseChart, standardizedData) {
-      chartService.updateChartSettings(settings, standardizedData);
-      chartService.setJoinFns(settings);
+      settings = chartService.updateChartSettings(settings, standardizedData);
+      settings = chartService.setJoinFns(settings);
 
       baseChart.selectAll('.data-node')
         .data(standardizedData, d => d[1])

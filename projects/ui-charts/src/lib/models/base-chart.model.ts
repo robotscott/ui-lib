@@ -1,34 +1,11 @@
-export type ChartType = 'bar' | 'line' | 'scatter' | 'pie';
+import { Dimensions } from './dimensions.model';
+import { ChartType } from './chart-type.model';
 
-export interface AxisDef {
-  key: string;
-  label?: string;
-}
-
-export interface Margin {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-}
-
-export interface DimensionSettings {
-  width?: number;
-  height?: number;
-  margin?: Margin;
-}
+export { Dimensions as BaseChartOptions };
 
 export interface BaseChartSettings extends
-  DimensionSettings {
+  Dimensions {
+  type?: ChartType;
   onEnter?: any;
   onUpdate?: any;
-}
-
-export interface UIChartOptions {
-  chartType?: ChartType;
-  xAxis?: AxisDef;
-  yAxis?: AxisDef;
-  width?: number;
-  height?: number;
-  margin?: Margin;
 }

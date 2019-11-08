@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-import { UIChartOptions, ChartType } from './models';
+import { ChartType } from './models';
 import { BaseChartService } from './services/base-chart.service';
 
 @Component({
@@ -39,13 +39,13 @@ export class UiChartsComponent implements AfterViewInit {
   }
 
   @Input()
-  set options(options: UIChartOptions) {
+  set options(options) {
     if (this.myChart) {
-      this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
-      this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
       this.myChart.width(options.width);
       this.myChart.height(options.height);
       this.myChart.margin(options.margin);
+      this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
+      this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
       this.myChart.xTickTransform(this.xTickTransform);
       this.myChart.yTickTransform(undefined);
     }
@@ -63,6 +63,7 @@ export class UiChartsComponent implements AfterViewInit {
         .call(this.myChart);
     }
   }
+
 
   /*
   TEMPORARY ASSIGNED HERE WHILE DECIDING HOW TO IMPLEMENT TICK TRANSFORMATION

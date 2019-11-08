@@ -1,7 +1,9 @@
-import { AxesGraphSettings } from './axes-graph.model';
+import { AxesChartSettings } from './axes-chart.model';
 
-type ChartTypeSettings =
-  AxesGraphSettings;
+export type ChartType = 'bar' | 'line' | 'scatter' | 'pie';
+
+export type ChartTypeSettings =
+  AxesChartSettings;
 
 export interface ChartTypeService {
   updateSettingsWithBase(

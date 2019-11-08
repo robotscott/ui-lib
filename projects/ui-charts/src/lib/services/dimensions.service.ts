@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseChartSettings, Margin } from '../models';
+import { BaseChartSettings, BaseChartOptions, Margin } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +12,13 @@ export class DimensionsService {
 
   constructor() { }
 
-  public setDefaultChartDimensions(settings): BaseChartSettings {
+  public getDefaultChartDimensions(): BaseChartSettings {
 
-    settings.margin = this.defaultMargin;
-    settings.width = this.defaultWidth - this.defaultMargin.right - this.defaultMargin.left;
-    settings.height = this.defaultHeight - this.defaultMargin.top - this.defaultMargin.bottom;
+    const margin = this.defaultMargin;
+    const width = this.defaultWidth - this.defaultMargin.right - this.defaultMargin.left;
+    const height = this.defaultHeight - this.defaultMargin.top - this.defaultMargin.bottom;
 
-    return settings;
+    return { margin, width, height };
   }
 
   public setWidthHeight(svg, { width, height, margin }: BaseChartSettings) {
