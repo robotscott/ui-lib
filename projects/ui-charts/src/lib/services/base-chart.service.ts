@@ -1,4 +1,4 @@
-import { Injectable, ElementRef } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
 import { BaseChartSettings, ChartType } from '../models';
@@ -16,7 +16,7 @@ export class BaseChartService {
     private dimensionsService: DimensionsService
   ) { }
 
-  public baseChart(type: ChartType): any {
+  public baseChart(type: ChartType) {
     // Define chart service based on chart type
     const chartService = this.setChartService(type);
     const dimensionsService = this.dimensionsService;
@@ -64,6 +64,12 @@ export class BaseChartService {
 
     // Add setters and getters for chart type
     chartService.addSetGetFns(chart, settings);
+
+    // Add options update handler
+    chart.handleOptionsUpdate = function(options) {
+      dimensionsService.handleOptionsUpdate(chart, options);
+      chartService.handleOptionsUpdate(chart, options);
+    };
 
     return chart;
   }

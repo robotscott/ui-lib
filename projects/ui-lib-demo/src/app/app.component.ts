@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { from, BehaviorSubject } from 'rxjs';
 import { AxesChartOptions } from 'ui-charts';
+import * as d3 from 'd3';
 
 const fox = [
   {
@@ -58,6 +59,7 @@ export class AppComponent {
     xAxisDef: {
       key: 'revenue'
     },
+    xTickTransform: this.xTickTransform,
     yAxisDef: {
       key: 'titleShort'
     },
@@ -96,5 +98,13 @@ export class AppComponent {
     //   }
     //   return d;
     // });
+  }
+
+  private xTickTransform(d: number): string {
+    return d3
+      .format('.2~s')(d)
+      .replace('M', ' mil')
+      .replace('G', ' bil')
+      .replace('T', ' tril');
   }
 }

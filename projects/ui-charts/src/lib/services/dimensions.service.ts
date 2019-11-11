@@ -13,6 +13,13 @@ export class DimensionsService {
 
   constructor() { }
 
+  public handleOptionsUpdate(chart, options) {
+    chart.width(options.width);
+    chart.height(options.height);
+    chart.margin(options.margin);
+    return chart;
+  }
+
   public getDefaultChartDimensions(): BaseChartSettings {
 
     const margin = this.defaultMargin;

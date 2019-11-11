@@ -13,11 +13,12 @@ export class AxesChartService implements ChartTypeService {
     private barChartService: BarChartService
   ) { }
 
-  public handleChartTypeOptions(myChart, options) {
-    myChart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
-    myChart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
-    myChart.xTickTransform(options.xTickTransform || this.xTickTransform);
-    myChart.yTickTransform(options.yTickTransform);
+  public handleOptionsUpdate(chart, options) {
+    chart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
+    chart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
+    chart.xTickTransform(options.xTickTransform || this.xTickTransform);
+    chart.yTickTransform(options.yTickTransform);
+    return chart;
   }
 
   public standardizeData(data, { x, y }: AxesChartSettings) {
