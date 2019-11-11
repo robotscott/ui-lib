@@ -1,10 +1,24 @@
 import { BaseChartSettings, BaseChartOptions } from './base-chart.model';
+import { Axis, AxisDomain } from 'd3';
 
 export interface AxesChartOptions extends BaseChartOptions {
-  xAxis?: AxisDef;
-  yAxis?: AxisDef;
-  xTickTransform?: (d: number | string) => string;
-  yTickTransform?: (d: number | string) => string;
+  xAxisDef?: AxisDef;
+  yAxisDef?: AxisDef;
+  xTickTransform?: (d: AxisDomain) => string;
+  yTickTransform?: (d: AxisDomain) => string;
+}
+
+export interface AxesChartSettings extends
+  BaseChartSettings,
+  AxesChartOptions {
+  x?: any;
+  y?: any;
+  xScale?: any;
+  yScale?: any;
+  drawXAxis?: any;
+  drawYAxis?: any;
+  xAxis?: Axis<AxisDomain>;
+  yAxis?: Axis<AxisDomain>;
 }
 
 export interface AxisDef {
@@ -29,11 +43,3 @@ export type AxesSettingsKeys =
 // };
 
 
-export interface AxesChartSettings extends BaseChartSettings {
-  x?: any;
-  y?: any;
-  xScale?: any;
-  yScale?: any;
-  drawXAxis?: any;
-  drawYAxis?: any;
-}

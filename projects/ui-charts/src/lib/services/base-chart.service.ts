@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 
 import { BaseChartSettings, ChartType } from '../models';
@@ -29,7 +29,7 @@ export class BaseChartService {
     let standardizedData;
     const update = this.setUpdateFn(chartService, settings);
 
-    function chart(selection) {
+    function chart(selection: d3.Selection<any, { }, null, undefined>) {
       selection.each(function(data) {
         // Standardize data for chart type
         standardizedData = chartService.standardizeData(data, settings);

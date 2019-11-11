@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxesChartSettings } from '../models/axes-chart.model';
-import { ChartTypeService } from '../models/chart-type.model';
+import { AxesChartSettings, ChartType, ChartTypeService, DataHandlerService } from '../models';
 import { BarChartService } from './bar-chart.service';
-import { DataHandlerService } from '../models/data-handler.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +12,13 @@ export class AxesChartService implements ChartTypeService {
   constructor(
     private barChartService: BarChartService
   ) { }
+
+  public handleChartTypeOptions(myChart, options) {
+    myChart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
+    myChart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
+    myChart.xTickTransform(options.xTickTransform || this.xTickTransform);
+    myChart.yTickTransform(options.yTickTransform);
+  }
 
   public standardizeData(data, { x, y }: AxesChartSettings) {
     return data.map(d => [x(d), y(d)]);
@@ -65,13 +70,6 @@ export class AxesChartService implements ChartTypeService {
     const onEnter = dataHandlerService.getEnterFn(settings);
     const onUpdate = dataHandlerService.getUpdateFn(settings);
     return {...settings, onEnter, onUpdate};
-  }
-
-  public handleChartTypeOptions(myChart, options) {
-    myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
-    myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
-    myChart.xTickTransform(this.xTickTransform);
-    myChart.yTickTransform(undefined);
   }
 
   private setScales(

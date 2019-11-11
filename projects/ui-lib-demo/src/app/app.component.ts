@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { from, BehaviorSubject } from 'rxjs';
+import { AxesChartOptions } from 'ui-charts';
 
 const fox = [
   {
@@ -53,11 +54,11 @@ export class AppComponent {
   public disney = new BehaviorSubject<{}[]>(disney);
 
   public type = 'bar';
-  public chartOptions = {
-    xAxis: {
+  public chartOptions: AxesChartOptions = {
+    xAxisDef: {
       key: 'revenue'
     },
-    yAxis: {
+    yAxisDef: {
       key: 'titleShort'
     },
     width: 300,

@@ -44,8 +44,8 @@ export class UiChartsComponent implements AfterViewInit {
       this.myChart.width(options.width);
       this.myChart.height(options.height);
       this.myChart.margin(options.margin);
-      this.myChart.x(options.xAxis ? d => d[options.xAxis.key] : undefined);
-      this.myChart.y(options.yAxis ? d => d[options.yAxis.key] : undefined);
+      this.myChart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
+      this.myChart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
       this.myChart.xTickTransform(this.xTickTransform);
       this.myChart.yTickTransform(undefined);
     }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BaseChartSettings, BaseChartOptions, Margin } from '../models';
+import { Selection, BaseType } from 'd3';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class DimensionsService {
     return { margin, width, height };
   }
 
-  public setWidthHeight(svg, { width, height, margin }: BaseChartSettings) {
+  public setWidthHeight<T>(svg, { width, height, margin }: BaseChartSettings): T {
     // viewBox use for responsive scaling
     svg
       .attr(
