@@ -49,4 +49,21 @@ export class BarChartService implements DataHandlerService {
       return barsUpdate;
     };
   }
+
+  public getXScale(data, width): d3.ScaleBand<d3.AxisDomain> {
+    console.log(data);
+    return d3
+      .scaleBand()
+      .domain(data.map(d => d[1]))
+      .range([0, width])
+      .padding(0.15);
+  }
+
+  public getYScale(data, height): d3.ScaleLinear<number, number> {
+    return d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d): number => d[0])])
+      .range([height, 0])
+      .nice();
+  }
 }

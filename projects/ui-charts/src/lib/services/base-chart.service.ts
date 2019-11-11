@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { BaseChartSettings, ChartType } from '../models';
+import { BaseChartSettings, ChartType, BaseChart } from '../models';
 import { ChartTypeService } from '../models/chart-type.model';
 import { AxesChartService } from './axes-chart.service';
 import { DimensionsService } from './dimensions.service';
@@ -16,7 +16,7 @@ export class BaseChartService {
     private dimensionsService: DimensionsService
   ) { }
 
-  public baseChart(type: ChartType) {
+  public baseChart(type: ChartType): BaseChart {
     // Define chart service based on chart type
     const chartService = this.setChartService(type);
     const dimensionsService = this.dimensionsService;

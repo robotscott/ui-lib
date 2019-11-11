@@ -6,6 +6,12 @@ export { Dimensions as BaseChartOptions };
 export interface BaseChartSettings
   extends Dimensions {
   type?: ChartType;
-  onEnter?: any;
-  onUpdate?: any;
+  onEnter?(setings: BaseChartSettings): BaseChartSettings;
+  onUpdate?(settings: BaseChartSettings): BaseChartSettings;
+}
+
+export interface BaseChart {
+  (selection: d3.Selection<any, {}, null, undefined>): void;
+  data?: (_?: {}) => any;
+  handleOptionsUpdate?: (options: any) => void;
 }

@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxesChartSettings, ChartType, ChartTypeService, DataHandlerService } from '../models';
+import {
+  AxesChart,
+  AxesChartOptions,
+  AxesChartSettings,
+  AxesDataHandlerService,
+  ChartType,
+  ChartTypeService,
+  AxesChartData,
+} from '../models';
 import { BarChartService } from './bar-chart.service';
 
 @Injectable({
@@ -13,10 +21,10 @@ export class AxesChartService implements ChartTypeService {
     private barChartService: BarChartService
   ) { }
 
-  public handleOptionsUpdate(chart, options) {
+  public handleOptionsUpdate(chart, options: AxesChartOptions) {
     chart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
     chart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
-    chart.xTickTransform(options.xTickTransform || this.xTickTransform);
+    chart.xTickTransform(options.xTickTransform);
     chart.yTickTransform(options.yTickTransform);
     return chart;
   }
@@ -32,7 +40,7 @@ export class AxesChartService implements ChartTypeService {
     return this.initAxis(settings, baseChart);
   }
 
-  public addSetGetFns(chart, settings: AxesChartSettings) {
+  public addSetGetFns(chart: AxesChart, settings: AxesChartSettings): AxesChart {
     chart.x = function(_?: (d: any) => any) {
       return arguments.length ? ((settings.x = _), chart) : settings.x;
     };
@@ -54,7 +62,7 @@ export class AxesChartService implements ChartTypeService {
 
   public updateChartSettings(
     settings: AxesChartSettings,
-    data: {}
+    data: AxesChartData
   ): AxesChartSettings {
     return this.setScales(settings, data);
 
@@ -62,7 +70,7 @@ export class AxesChartService implements ChartTypeService {
 
   public updateChart(
     settings: AxesChartSettings,
-  ) {
+  ): AxesChartSettings {
     return this.updateAxis(settings);
   }
 
@@ -74,10 +82,11 @@ export class AxesChartService implements ChartTypeService {
   }
 
   private setScales(
-    settings: AxesChartSettings, data: {}
+    settings: AxesChartSettings, data: AxesChartData
   ): AxesChartSettings {
-    const xScale = this.getXScale(data, settings.width);
-    const yScale = this.getYScale(data, settings.height);
+    const dataHandlerService = this.setDataHandlerService(settings.type);
+    const xScale = dataHandlerService.getXScale(data, settings.width);
+    const yScale = dataHandlerService.getYScale(data, settings.height);
     return {...settings, xScale, yScale};
   }
 
@@ -113,41 +122,12 @@ export class AxesChartService implements ChartTypeService {
     return settings;
   }
 
-
-  private getXScale(data, width) {
-    return d3
-      .scaleBand()
-      .domain(data.map(d => d[1]))
-      .range([0, width])
-      .padding(0.15);
-  }
-
-  private getYScale(data, height) {
-    return d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d): number => d[0])])
-      .range([height, 0])
-      .nice();
-  }
-
-  private setDataHandlerService(type: ChartType): DataHandlerService {
+  private setDataHandlerService(type: ChartType): AxesDataHandlerService {
     switch (type) {
       case 'bar':
         return this.barChartService;
       default:
         throw new Error('Chart type must be set');
     }
-  }
-
-
-  /*
-  TEMPORARY ASSIGNED HERE WHILE DECIDING HOW TO IMPLEMENT TICK TRANSFORMATION
-   */
-  private xTickTransform(d: number): string {
-    return d3
-      .format('.2~s')(d)
-      .replace('M', ' mil')
-      .replace('G', ' bil')
-      .replace('T', ' tril');
   }
 }

@@ -1,15 +1,28 @@
-import { BaseChartSettings, BaseChartOptions } from './base-chart.model';
-import { Axis, AxisDomain } from 'd3';
+import * as d3 from 'd3';
 
-export interface AxesChartOptions extends BaseChartOptions {
-  xAxisDef?: AxisDef;
-  yAxisDef?: AxisDef;
-  xTickTransform?: (d: AxisDomain) => string;
-  yTickTransform?: (d: AxisDomain) => string;
+import { BarChartService } from '../services/bar-chart.service';
+import { LineChartService } from '../services/line-chart.service';
+import { BaseChart, BaseChartOptions, BaseChartSettings } from './base-chart.model';
+import { LineChartData } from './line-chart.model';
+
+export interface AxesChart
+  extends BaseChart {
+  x?: any;
+  y?: any;
+  xTickTransform?: any;
+  yTickTransform?: any;
 }
 
-export interface AxesChartSettings extends
-  BaseChartSettings,
+export interface AxesChartOptions
+  extends BaseChartOptions {
+  xAxisDef?: AxisDef;
+  yAxisDef?: AxisDef;
+  xTickTransform?: (d: d3.AxisDomain) => string;
+  yTickTransform?: (d: d3.AxisDomain) => string;
+}
+
+export interface AxesChartSettings
+  extends BaseChartSettings,
   AxesChartOptions {
   x?: any;
   y?: any;
@@ -17,8 +30,8 @@ export interface AxesChartSettings extends
   yScale?: any;
   drawXAxis?: any;
   drawYAxis?: any;
-  xAxis?: Axis<AxisDomain>;
-  yAxis?: Axis<AxisDomain>;
+  xAxis?: d3.Axis<d3.AxisDomain>;
+  yAxis?: d3.Axis<d3.AxisDomain>;
 }
 
 export interface AxisDef {
@@ -26,20 +39,6 @@ export interface AxisDef {
   label?: string;
 }
 
-export type AxesSettingsKeys =
-  'x' |
-  'y' |
-  'xScale' |
-  'yScale' |
-  'drawXAxis' |
-  'drawYAxis' |
-  'xAxis' |
-  'yAxis' |
-  'xTickTransform' |
-  'yTickTransform';
+export type AxesChartData = LineChartData;
 
-// export type AxesGraphSettings = {
-//   [K in AxesSettingsKeys]?: any;
-// };
-
-
+export type AxesDataHandlerService = BarChartService | LineChartService;
