@@ -7,3 +7,15 @@ export interface BarChartDataNode {
   value: number;
   color?: string;
 }
+
+export interface BarChartValue
+  extends X,
+  Y { }
+
+interface X {
+  [x: string]: any;
+}
+
+interface Y {
+  [y: string]: any;
+}

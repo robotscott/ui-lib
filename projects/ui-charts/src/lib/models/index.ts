@@ -5,3 +5,4 @@ export * from './axes-chart.model';
 export * from './data-handler.model';
 export * from './dimensions.model';
 export * from './chart-type.model';
+export * from './standardized-data.model';

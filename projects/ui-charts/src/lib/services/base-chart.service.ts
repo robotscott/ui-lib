@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 
-import { BaseChartSettings, ChartType, BaseChart } from '../models';
+import { BaseChartSettings, ChartType, BaseChart, StandardizedData, BaseChartOptions, StandardizedValueType } from '../models';
 import { ChartTypeService } from '../models/chart-type.model';
 import { AxesChartService } from './axes-chart.service';
 import { DimensionsService } from './dimensions.service';
@@ -17,46 +17,52 @@ export class BaseChartService {
   ) { }
 
   public baseChart(type: ChartType): BaseChart {
+
     // Define chart service based on chart type
     const chartService = this.setChartService(type);
     const dimensionsService = this.dimensionsService;
-    const initBaseChart = this.initBaseChart(this.dimensionsService);
-
-    const settings: BaseChartSettings = this.initSettings(type);
+    let settings: BaseChartSettings = this.initBaseSettings();
+    const initBaseChart = this.initBaseChart(dimensionsService);
 
     // Additional closure variables
     let baseChart;
-    let standardizedData;
-    const update = this.setUpdateFn(chartService, settings);
+    let data;
+    const updateSettings = this.setUpdateSettings;
+    const update = this.setUpdateFn(chartService);
 
-    function chart(selection: d3.Selection<any, { }, null, undefined>) {
-      selection.each(function(data) {
-        // Standardize data for chart type
-        standardizedData = chartService.standardizeData(data, settings);
+    function chart(selection: d3.Selection<any, {}, null, undefined>) {
+      selection.each(function(initData: StandardizedData<StandardizedValueType>) {
+        data = initData;
 
         // Build chart base
-        baseChart = initBaseChart(this, standardizedData, type, settings);
+        baseChart = initBaseChart(this, data, type, settings);
 
         // Update setting for chart type that require baseChart
-        chartService.updateSettingsWithBase(settings, baseChart);
+        settings = {
+          ...settings,
+          ...chartService.initChartTypeSettings(type, settings, baseChart)
+        };
+
+        // settings
 
         // Draw visual
-        update(baseChart, standardizedData);
+        update(baseChart, data, settings);
 
       });
     }
 
     // Add setters and getters for base chart
-    chart.data = function(_?: {}) {
+    chart.data = function(_?: StandardizedData<StandardizedValueType>) {
       if (arguments.length) {
-        standardizedData = chartService.standardizeData(_, settings);
+        data = _;
+        // data = chartService.standardizeData(_, settings);
 
         if (baseChart) {
-          update(baseChart, standardizedData);
+          update(baseChart, data, settings);
         }
         return chart;
       }
-      return standardizedData;
+      return data;
     };
 
     // Add setters and getters for dimensions
@@ -75,10 +81,15 @@ export class BaseChartService {
   }
 
   private initBaseChart(dimensionsService) {
-    return function(container, standardizedData, type, settings) {
+    return function(
+      container: d3.BaseType,
+      data: StandardizedData<StandardizedValueType>,
+      type: ChartType,
+      options: BaseChartOptions
+    ) {
       let svg = d3.select(container)
         .selectAll('svg')
-        .data([standardizedData]);
+        .data([data]);
 
       const svgEnter = svg.enter().append('svg');
 
@@ -87,11 +98,11 @@ export class BaseChartService {
       svg = svg.merge(svgEnter);
 
       // Set chart base dimensions
-      dimensionsService.setWidthHeight(svg, settings);
+      dimensionsService.setWidthHeight(svg, options);
 
       const baseChart = dimensionsService.applyChartMargins(
         svg.select('g.chart'),
-        settings
+        options
       );
 
       return baseChart;
@@ -102,26 +113,31 @@ export class BaseChartService {
     switch (type) {
       case 'bar':
         return this.axesChartService;
+      case 'line':
+        return this.axesChartService;
       default:
         throw new Error('Chart type must be set');
     }
   }
 
-  private initSettings(type: ChartType): BaseChartSettings {
-    const dimensions = this.dimensionsService.getDefaultChartDimensions();
-    return {
-      ...dimensions,
-      type
+  private initBaseSettings(): BaseChartSettings {
+    return this.dimensionsService.getDefaultChartDimensions();
+  }
+
+  private setUpdateSettings(chartService) {
+    return function(data: StandardizedData<StandardizedValueType>, settings) {
+      return {
+        ...settings,
+        ...chartService.updateSettings(settings, data)
+      };
     };
   }
 
-  private setUpdateFn(chartService, settings) {
-    return function(baseChart, standardizedData) {
-      settings = chartService.updateChartSettings(settings, standardizedData);
-      settings = chartService.setJoinFns(settings);
+  private setUpdateFn(chartService) {
+    return function(baseChart, data: StandardizedData<StandardizedValueType>, settings) {
 
       baseChart.selectAll('.data-node')
-        .data(standardizedData, d => d[1])
+        .data(data, d => d[1])
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 
       chartService.updateChart(settings);

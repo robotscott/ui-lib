@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 import { AxesChartSettings } from '../models/axes-chart.model';
 import { DataHandlerService } from '../models/data-handler.model';
-import { LineChartData } from '../models/line-chart.model';
+import { LineChartData, LineChartValuePoint } from '../models/line-chart.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,46 +13,44 @@ export class LineChartService implements DataHandlerService {
   constructor() { }
 
   public getEnterFn({ xScale, yScale, height }: AxesChartSettings) {
+
+    const lineGen = this.getLineGen(xScale, yScale);
+
     return function(enter) {
-      const barsEnter = enter
-        .append('g')
-        .attr('class', 'data-node')
-        .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
+      console.log(this.lineGen);
 
-      barsEnter
-        .append('rect')
-        .data(d => d)
-        .attr('width', xScale.bandwidth())
-        .attr('height', d => height - yScale(d[0]))
-        .style('fill', () => d3.interpolateSinebow(Math.random()));
+      const linesEnter = enter
+        .append('path')
+        .attr('class', d => 'data-node line')
+        .attr('d', d => lineGen(d.values))
+        .style('fill', 'none')
+        .style('stroke', d => d.color || d3.interpolateSinebow(Math.random()));
 
-      barsEnter
-        .append('text')
-        .text(d => d[1])
-        .attr('y', xScale.bandwidth() / 2)
-        .attr('dx', '0.35em');
-
-      return barsEnter;
+      return linesEnter;
     };
   }
 
   public getUpdateFn({ xScale, yScale, height }: AxesChartSettings) {
-    return function(update) {
-      const barsUpdate = update
-        .transition()
-        .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
-      barsUpdate
+    const lineGen = this.getLineGen(xScale, yScale);
+
+    return function(update) {
+      const linesUpdate = update
+        .transition()
+        .attr('d', d => lineGen(d.values));
+
+      linesUpdate
         .select('rect')
         .attr('width', xScale.bandwidth())
         .attr('height', d => height - yScale(d[0]));
 
-      return barsUpdate;
+      return linesUpdate;
     };
   }
 
   public getXScale(data: LineChartData, width): d3.ScaleTime<number, number> {
-    const dates = this.getAllDates(data);
+    console.log(data);
+    const dates = this.getAllDates(data.values);
     return d3
       .scaleTime()
       .domain(d3.extent(dates))
@@ -70,8 +68,16 @@ export class LineChartService implements DataHandlerService {
 
   private getAllDates(data: LineChartData): Date[] {
     return data.reduce((dates, node) => {
+      console.log(node);
       const nodeDates = node.values.map(point => point.date);
       return [...dates, ...nodeDates];
     }, []);
+  }
+
+  private getLineGen(xScale, yScale) {
+    return d3
+      .line()
+      .x(d => xScale(d.date))
+      .y(d => yScale(d.value));
   }
 }

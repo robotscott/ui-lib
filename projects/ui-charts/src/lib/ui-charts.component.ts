@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-import { ChartType } from './models';
+import { ChartType, StandardizedData, StandardizedValueType } from './models';
 import { BaseChartService } from './services/base-chart.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class UiChartsComponent implements AfterViewInit {
 
   private chartElement;
   private myChart;
-  private initData: {};
+  private initData: StandardizedData<StandardizedValueType>;
 
   @ViewChild('chartContainer', { static: false }) private chartContainer: ElementRef;
 
@@ -31,7 +31,7 @@ export class UiChartsComponent implements AfterViewInit {
   }
 
   @Input()
-  set data(data: {}) {
+  set data(data: StandardizedData<StandardizedValueType>) {
     this.initData = data;
     if (this.chartElement) {
       this.myChart.data(data);

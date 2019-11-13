@@ -15,7 +15,7 @@ export class BarChartService implements DataHandlerService {
     return function(enter) {
       const barsEnter = enter
         .append('g')
-        .attr('class', 'data-node')
+        .attr('class', 'data-node bar')
         .attr('transform', d => `translate(${xScale(d[1])}, ${yScale(d[0])})`);
 
       barsEnter

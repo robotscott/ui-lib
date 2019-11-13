@@ -23,15 +23,23 @@ export interface AxesChartOptions
 
 export interface AxesChartSettings
   extends BaseChartSettings,
-  AxesChartOptions {
+  AxesChartOptions,
+  AxisSettings,
+  ScalesSettings {
   x?: any;
   y?: any;
-  xScale?: any;
-  yScale?: any;
+}
+
+export interface AxisSettings {
   drawXAxis?: any;
   drawYAxis?: any;
   xAxis?: d3.Axis<d3.AxisDomain>;
   yAxis?: d3.Axis<d3.AxisDomain>;
+}
+
+export interface ScalesSettings {
+  xScale?: any;
+  yScale?: any;
 }
 
 export interface AxisDef {

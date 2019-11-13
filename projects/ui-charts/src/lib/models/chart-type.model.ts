@@ -6,14 +6,11 @@ export type ChartTypeSettings =
   AxesChartSettings;
 
 export interface ChartTypeService {
-  updateSettingsWithBase(
-    settings: ChartTypeSettings,
-    baseChart
-  ): ChartTypeSettings;
+  initChartTypeSettings(type: ChartType, settings: ChartTypeSettings, baseChart): ChartTypeSettings;
   addSetGetFns(chart, settings);
   handleOptionsUpdate(chart, options);
-  standardizeData(data: {}, {x, y}: ChartTypeSettings);
-  updateChartSettings(settings: ChartTypeSettings, data: {}): ChartTypeSettings;
+  // standardizeData(data: {}, { x, y }: ChartTypeSettings);
+  updateSettings(settings: ChartTypeSettings, data: {}): ChartTypeSettings;
   updateChart(settings: ChartTypeSettings): ChartTypeSettings;
   setJoinFns(settings: ChartTypeSettings): ChartTypeSettings;
 }

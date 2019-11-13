@@ -2,10 +2,14 @@ export type LineChartData = LineChartDataNode[];
 
 export interface LineChartDataNode {
   label: string;
-  values: LineChartValuePoint[];
+  color?: string;
+  value: LineChartValue;
 }
 
+export type LineChartValue = LineChartValuePoint[];
+
 export interface LineChartValuePoint {
-  date: Date;
+  date: Date | string;
   value: number;
 }
+
