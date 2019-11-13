@@ -41,11 +41,13 @@ export class AppComponent {
     const newData = currentData.map((d: any) => {
       const random = Math.random();
       if (Math.round(random)) {
-        d.revenue = random * 3000000000;
+        d.value.revenue = random * 3000000000;
         return d;
       }
       return d;
     });
+
+    console.log(newData);
 
     data.next(newData);
 
@@ -108,13 +110,13 @@ const disney: StandardizedData<BarChartValue> = [
       revenue: 997970603,
     }
   },
-  {
-    label: 'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe',
-    value: {
-      titleShort: 'Narnia 1',
-      revenue: 821667244,
-    }
-  },
+  // {
+  //   label: 'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe',
+  //   value: {
+  //     titleShort: 'Narnia 1',
+  //     revenue: 821667244,
+  //   }
+  // },
 ];
 
 const lineData: StandardizedData<LineChartValue> = [

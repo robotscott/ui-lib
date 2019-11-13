@@ -27,11 +27,11 @@ export class BaseChartService {
     // Additional closure variables
     let baseChart;
     let data;
-    const updateSettings = this.setUpdateSettings;
+    // const updateSettings = this.setUpdateSettings(chartService);
     const update = this.setUpdateFn(chartService);
 
     function chart(selection: d3.Selection<any, {}, null, undefined>) {
-      selection.each(function(initData: StandardizedData<StandardizedValueType>) {
+      selection.each(function(initData: StandardizedData) {
         data = initData;
 
         // Build chart base
@@ -40,10 +40,8 @@ export class BaseChartService {
         // Update setting for chart type that require baseChart
         settings = {
           ...settings,
-          ...chartService.initChartTypeSettings(type, settings, baseChart)
+          ...chartService.initChartTypeSettings(type, settings, baseChart, data)
         };
-
-        // settings
 
         // Draw visual
         update(baseChart, data, settings);
@@ -52,10 +50,13 @@ export class BaseChartService {
     }
 
     // Add setters and getters for base chart
-    chart.data = function(_?: StandardizedData<StandardizedValueType>) {
+    chart.data = function(_?: StandardizedData) {
       if (arguments.length) {
         data = _;
-        // data = chartService.standardizeData(_, settings);
+        settings = {
+          ...settings,
+          ...chartService.updateSettings(settings, data)
+        };
 
         if (baseChart) {
           update(baseChart, data, settings);
@@ -83,7 +84,7 @@ export class BaseChartService {
   private initBaseChart(dimensionsService) {
     return function(
       container: d3.BaseType,
-      data: StandardizedData<StandardizedValueType>,
+      data: StandardizedData,
       type: ChartType,
       options: BaseChartOptions
     ) {
@@ -124,20 +125,20 @@ export class BaseChartService {
     return this.dimensionsService.getDefaultChartDimensions();
   }
 
-  private setUpdateSettings(chartService) {
-    return function(data: StandardizedData<StandardizedValueType>, settings) {
-      return {
-        ...settings,
-        ...chartService.updateSettings(settings, data)
-      };
-    };
-  }
+  // private setUpdateSettings(chartService) {
+  //   return function(data: StandardizedData, settings) {
+  //     return {
+  //       ...settings,
+  //       ...chartService.updateSettings(settings, data)
+  //     };
+  //   };
+  // }
 
   private setUpdateFn(chartService) {
-    return function(baseChart, data: StandardizedData<StandardizedValueType>, settings) {
-
+    return function(baseChart, data: StandardizedData, settings) {
+      console.log(settings);
       baseChart.selectAll('.data-node')
-        .data(data, d => d[1])
+        .data(data, d => settings.y(d))
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());
 
       chartService.updateChart(settings);

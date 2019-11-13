@@ -17,7 +17,7 @@ export class UiChartsComponent implements AfterViewInit {
 
   private chartElement;
   private myChart;
-  private initData: StandardizedData<StandardizedValueType>;
+  private initData: StandardizedData;
 
   @ViewChild('chartContainer', { static: false }) private chartContainer: ElementRef;
 
@@ -31,7 +31,7 @@ export class UiChartsComponent implements AfterViewInit {
   }
 
   @Input()
-  set data(data: StandardizedData<StandardizedValueType>) {
+  set data(data: StandardizedData) {
     this.initData = data;
     if (this.chartElement) {
       this.myChart.data(data);

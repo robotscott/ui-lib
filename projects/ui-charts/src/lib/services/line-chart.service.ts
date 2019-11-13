@@ -50,7 +50,7 @@ export class LineChartService implements DataHandlerService {
 
   public getXScale(data: LineChartData, width): d3.ScaleTime<number, number> {
     console.log(data);
-    const dates = this.getAllDates(data.values);
+    const dates = this.getAllDates(data.value);
     return d3
       .scaleTime()
       .domain(d3.extent(dates))
@@ -69,7 +69,7 @@ export class LineChartService implements DataHandlerService {
   private getAllDates(data: LineChartData): Date[] {
     return data.reduce((dates, node) => {
       console.log(node);
-      const nodeDates = node.values.map(point => point.date);
+      const nodeDates = node.value.map(point => point.date);
       return [...dates, ...nodeDates];
     }, []);
   }

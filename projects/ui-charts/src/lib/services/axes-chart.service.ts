@@ -3,14 +3,16 @@ import * as d3 from 'd3';
 
 import {
   AxesChart,
+  AxesChartData,
   AxesChartOptions,
   AxesChartSettings,
   AxesDataHandlerService,
+  AxisSettings,
   ChartType,
   ChartTypeService,
-  AxesChartData,
-  AxisSettings,
   ScalesSettings,
+  JoinFunctions,
+  StandardizedNodeData,
 } from '../models';
 import { BarChartService } from './bar-chart.service';
 import { LineChartService } from './line-chart.service';
@@ -26,8 +28,8 @@ export class AxesChartService implements ChartTypeService {
   ) { }
 
   public handleOptionsUpdate(chart, options: AxesChartOptions) {
-    // chart.x(options.xAxisDef ? d => d[options.xAxisDef.key] : undefined);
-    // chart.y(options.yAxisDef ? d => d[options.yAxisDef.key] : undefined);
+    chart.x(options.xAxisDef ? (d: StandardizedNodeData) => d.value[options.xAxisDef.key] : undefined);
+    chart.y(options.yAxisDef ? (d: StandardizedNodeData) => d.value[options.yAxisDef.key] : undefined);
     chart.xTickTransform(options.xTickTransform);
     chart.yTickTransform(options.yTickTransform);
     return chart;
@@ -40,25 +42,27 @@ export class AxesChartService implements ChartTypeService {
   public initChartTypeSettings(
     type: ChartType,
     settings: AxesChartSettings,
-    baseChart
+    baseChart,
+    data
   ): AxesChartSettings {
-    const axis = this.initAxis(settings, baseChart);
-    // const  =
+    const axis = this.initAxis({ ...settings, type }, baseChart);
+    const chartSettings = this.updateSettings({ ...settings, type }, data);
     return {
       type,
-      ...this.initAxis(settings, baseChart)
+      ...axis,
+      ...chartSettings
     };
     // return this.initAxis(settings, baseChart);
   }
 
   public addSetGetFns(chart: AxesChart, settings: AxesChartSettings): AxesChart {
-    // chart.x = function(_?: (d: any) => any) {
-    //   return arguments.length ? ((settings.x = _), chart) : settings.x;
-    // };
+    chart.x = function(_?: (d: any) => any) {
+      return arguments.length ? ((settings.x = _), chart) : settings.x;
+    };
 
-    // chart.y = function(_?: (d: any) => any) {
-    //   return arguments.length ? ((settings.y = _), chart) : settings.y;
-    // };
+    chart.y = function(_?: (d: any) => any) {
+      return arguments.length ? ((settings.y = _), chart) : settings.y;
+    };
 
     chart.xTickTransform = function(_?: (d: any) => any) {
       return arguments.length ? ((settings.xTickTransform = _), chart) : settings.xTickTransform;
@@ -72,35 +76,36 @@ export class AxesChartService implements ChartTypeService {
   }
 
   public updateSettings(
-    settings: AxesChartSettings,
+    { x, y, type, width, height }: AxesChartSettings,
     data: AxesChartData
   ): AxesChartSettings {
-    const scales = this.setScales(settings, data);
-    const joinFns = this.setJoinFns({ ...settings, ...scales });
+    const scales = this.setScales({ x, y, type, width, height }, data);
+    const joinFns = this.setJoinFns({ x, y, type, height, ...scales });
     return { ...scales, ...joinFns };
 
   }
 
   public updateChart(
     settings: AxesChartSettings,
-  ): AxesChartSettings {
-    return this.updateAxis(settings);
+  ) {
+    this.updateAxis(settings);
   }
 
-  public setJoinFns(settings: AxesChartSettings): AxesChartSettings {
-    const dataHandlerService = this.setDataHandlerService(settings.type);
-    const onEnter = dataHandlerService.getEnterFn(settings);
-    const onUpdate = dataHandlerService.getUpdateFn(settings);
+  public setJoinFns({ x, y, type, xScale, yScale, height }: AxesChartSettings): JoinFunctions {
+    const dataHandlerService = this.setDataHandlerService(type);
+    const onEnter = dataHandlerService.getEnterFn({ x, y, xScale, yScale, height });
+    const onUpdate = dataHandlerService.getUpdateFn({ x, y, xScale, yScale, height });
     return { onEnter, onUpdate };
   }
 
   private setScales(
-    settings: AxesChartSettings, data: AxesChartData
+    { x, y, type, width, height }: AxesChartSettings,
+    data: AxesChartData
   ): ScalesSettings {
-    console.log(data);
-    const dataHandlerService = this.setDataHandlerService(settings.type);
-    const xScale = dataHandlerService.getXScale(data, settings.width);
-    const yScale = dataHandlerService.getYScale(data, settings.height);
+    console.log(type, data);
+    const dataHandlerService = this.setDataHandlerService(type);
+    const xScale = dataHandlerService.getXScale(y, data, width);
+    const yScale = dataHandlerService.getYScale(x, data, height);
     return { xScale, yScale };
   }
 
@@ -130,10 +135,10 @@ export class AxesChartService implements ChartTypeService {
     return { xAxis, drawXAxis, yAxis, drawYAxis };
   }
 
-  private updateAxis(settings: AxesChartSettings): AxesChartSettings {
-    settings.drawYAxis.call(settings.yAxis.scale(settings.yScale));
-    settings.drawXAxis.call(settings.xAxis.scale(settings.xScale));
-    return settings;
+  private updateAxis({ drawXAxis, xAxis, xScale, drawYAxis, yAxis, yScale }: AxesChartSettings) {
+    console.log('update', { drawXAxis, xAxis, xScale, drawYAxis, yAxis, yScale })
+    drawXAxis.call(xAxis.scale(xScale));
+    drawYAxis.call(yAxis.scale(yScale));
   }
 
   private setDataHandlerService(type: ChartType): AxesDataHandlerService {
