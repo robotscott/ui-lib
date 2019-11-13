@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
-import { AxesChartOptions, StandardizedData, BarChartValue, LineChartValue } from 'ui-charts';
+import { AxesChartOptions, StandardizedData, BarChartData, LineChartData } from 'ui-charts';
 
 @Component({
   selector: 'app-root',
@@ -9,18 +9,36 @@ import { AxesChartOptions, StandardizedData, BarChartValue, LineChartValue } fro
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  public fox = new BehaviorSubject<StandardizedData<BarChartValue>>(fox);
-  public disney = new BehaviorSubject<StandardizedData<BarChartValue>>(disney);
-  public lineData = new BehaviorSubject<StandardizedData<LineChartValue>>(lineData);
+  public fox = new BehaviorSubject<StandardizedData>(fox);
+  public disney = new BehaviorSubject<StandardizedData>(disney);
+  public lineData = new BehaviorSubject<StandardizedData>(lineData);
 
-  public type = 'bar';
-  public chartOptions: AxesChartOptions = {
+  public barType = 'bar';
+  public lineType = 'line';
+  public barChartOptions: AxesChartOptions = {
     xAxisDef: {
-      key: 'revenue'
+      key: 'titleShort'
     },
     xTickTransform: this.xTickTransform,
     yAxisDef: {
-      key: 'titleShort'
+      key: 'revenue'
+    },
+    width: 300,
+    height: 200,
+    margin: {
+      top: 10,
+      left: 50,
+      bottom: 25,
+      right: 10
+    }
+  };
+  public lineChartOptions: AxesChartOptions = {
+    xAxisDef: {
+      key: 'date'
+    },
+    xTickTransform: this.xTickTransform,
+    yAxisDef: {
+      key: 'amount'
     },
     width: 300,
     height: 200,
@@ -32,11 +50,8 @@ export class AppComponent {
     }
   };
 
-  public updateData(data: BehaviorSubject<{}[]>) {
-    // this.chartOptions = {
-    //   ...this.chartOptions,
-    //   height: 500
-    // };
+  public updateData(data: BehaviorSubject<StandardizedData>) {
+    console.log(lineData);
     const currentData = data.getValue();
     const newData = currentData.map((d: any) => {
       const random = Math.random();
@@ -47,18 +62,7 @@ export class AppComponent {
       return d;
     });
 
-    console.log(newData);
-
     data.next(newData);
-
-    // data = data.map(d => {
-    //   const random = Math.random();
-    //   if (Math.round(random)) {
-    //     d.revenue = random * 3000000000;
-    //     return d;
-    //   }
-    //   return d;
-    // });
   }
 
   private xTickTransform(d: number): string {
@@ -71,7 +75,7 @@ export class AppComponent {
 }
 
 
-const fox: StandardizedData<BarChartValue> = [
+const fox: BarChartData = [
   {
     label: 'Avatar',
     value: {
@@ -95,7 +99,7 @@ const fox: StandardizedData<BarChartValue> = [
   },
 ];
 
-const disney: StandardizedData<BarChartValue> = [
+const disney: BarChartData = [
   {
     label: 'Pirates of the Caribbean: Dead Man\'s Chest',
     value: {
@@ -119,50 +123,50 @@ const disney: StandardizedData<BarChartValue> = [
   // },
 ];
 
-const lineData: StandardizedData<LineChartValue> = [
+const lineData: LineChartData = [
   {
     label: 'Revenue',
     color: 'dodgerblue',
     value: [
       {
-        date: '2000-01-01T06:00:00.000Z',
-        value: 14389102516
+        date: new Date('2000-01-01T06:00:00.000Z'),
+        amount: 14389102516
       },
       {
-        date: '2001-01-01T06:00:00.000Z',
-        value: 16992596669
+        date: new Date('2001-01-01T06:00:00.000Z'),
+        amount: 16992596669
       },
       {
-        date: '2002-01-01T06:00:00.000Z',
-        value: 18236693570
+        date: new Date('2002-01-01T06:00:00.000Z'),
+        amount: 18236693570
       },
       {
-        date: '2003-01-01T06:00:00.000Z',
-        value: 18032628503
+        date: new Date('2003-01-01T06:00:00.000Z'),
+        amount: 18032628503
       },
       {
-        date: '2004-01-01T06:00:00.000Z',
-        value: 19576650363
+        date: new Date('2004-01-01T06:00:00.000Z'),
+        amount: 19576650363
       },
       {
-        date: '2005-01-01T06:00:00.000Z',
-        value: 18123550149
+        date: new Date('2005-01-01T06:00:00.000Z'),
+        amount: 18123550149
       },
       {
-        date: '2006-01-01T06:00:00.000Z',
-        value: 18883796922
+        date: new Date('2006-01-01T06:00:00.000Z'),
+        amount: 18883796922
       },
       {
-        date: '2007-01-01T06:00:00.000Z',
-        value: 19424188311
+        date: new Date('2007-01-01T06:00:00.000Z'),
+        amount: 19424188311
       },
       {
-        date: '2008-01-01T06:00:00.000Z',
-        value: 19900869439
+        date: new Date('2008-01-01T06:00:00.000Z'),
+        amount: 19900869439
       },
       {
-        date: '2009-01-01T06:00:00.000Z',
-        value: 22553803572
+        date: new Date('2009-01-01T06:00:00.000Z'),
+        amount: 22553803572
       }
     ]
   },
@@ -171,44 +175,44 @@ const lineData: StandardizedData<LineChartValue> = [
     color: 'darkorange',
     value: [
       {
-        date: '2000-01-01T06:00:00.000Z',
-        value: 6271667686
+        date: new Date('2000-01-01T06:00:00.000Z'),
+        amount: 6271667686
       },
       {
-        date: '2001-01-01T06:00:00.000Z',
-        value: 6800928032
+        date: new Date('2001-01-01T06:00:00.000Z'),
+        amount: 6800928032
       },
       {
-        date: '2002-01-01T06:00:00.000Z',
-        value: 6966631114
+        date: new Date('2002-01-01T06:00:00.000Z'),
+        amount: 6966631114
       },
       {
-        date: '2003-01-01T06:00:00.000Z',
-        value: 6606715191
+        date: new Date('2003-01-01T06:00:00.000Z'),
+        amount: 6606715191
       },
       {
-        date: '2004-01-01T06:00:00.000Z',
-        value: 7897795916
+        date: new Date('2004-01-01T06:00:00.000Z'),
+        amount: 7897795916
       },
       {
-        date: '2005-01-01T06:00:00.000Z',
-        value: 7672004809
+        date: new Date('2005-01-01T06:00:00.000Z'),
+        amount: 7672004809
       },
       {
-        date: '2006-01-01T06:00:00.000Z',
-        value: 8027253050
+        date: new Date('2006-01-01T06:00:00.000Z'),
+        amount: 8027253050
       },
       {
-        date: '2007-01-01T06:00:00.000Z',
-        value: 7410209262
+        date: new Date('2007-01-01T06:00:00.000Z'),
+        amount: 7410209262
       },
       {
-        date: '2008-01-01T06:00:00.000Z',
-        value: 7743655751
+        date: new Date('2008-01-01T06:00:00.000Z'),
+        amount: 7743655751
       },
       {
-        date: '2009-01-01T06:00:00.000Z',
-        value: 7974660356
+        date: new Date('2009-01-01T06:00:00.000Z'),
+        amount: 7974660356
       }
     ]
   }

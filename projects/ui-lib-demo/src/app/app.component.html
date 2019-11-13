@@ -3,27 +3,27 @@
     <button (click)="updateData(fox)">Update Data</button>
 
     <ui-chart
-      [type]="type"
+      [type]="barType"
       [data]="fox | async"
-      [options]="chartOptions"
+      [options]="barChartOptions"
     ></ui-chart>
   </div>
   <div>
     <button (click)="updateData(disney)">Update Data</button>
 
     <ui-chart
-      [type]="type"
+      [type]="barType"
       [data]="disney | async"
-      [options]="chartOptions"
+      [options]="barChartOptions"
     ></ui-chart>
   </div>
-  <!-- <div>
+  <div>
     <button (click)="updateData(lineData)">Update Data</button>
 
     <ui-chart
-      [type]="type"
+      [type]="lineType"
       [data]="lineData | async"
-      [options]="chartOptions"
+      [options]="lineChartOptions"
     ></ui-chart>
-  </div> -->
+  </div>
 </div>

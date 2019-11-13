@@ -46,7 +46,7 @@ export class AxesChartService implements ChartTypeService {
     data
   ): AxesChartSettings {
     const axis = this.initAxis({ ...settings, type }, baseChart);
-    const chartSettings = this.updateSettings({ ...settings, type }, data);
+    const chartSettings = this.setDrawingFns({ ...settings, type }, data);
     return {
       type,
       ...axis,
@@ -75,7 +75,7 @@ export class AxesChartService implements ChartTypeService {
     return chart;
   }
 
-  public updateSettings(
+  public setDrawingFns(
     { x, y, type, width, height }: AxesChartSettings,
     data: AxesChartData
   ): AxesChartSettings {
@@ -102,10 +102,9 @@ export class AxesChartService implements ChartTypeService {
     { x, y, type, width, height }: AxesChartSettings,
     data: AxesChartData
   ): ScalesSettings {
-    console.log(type, data);
     const dataHandlerService = this.setDataHandlerService(type);
-    const xScale = dataHandlerService.getXScale(y, data, width);
-    const yScale = dataHandlerService.getYScale(x, data, height);
+    const xScale = dataHandlerService.getXScale(x, data, width);
+    const yScale = dataHandlerService.getYScale(y, data, height);
     return { xScale, yScale };
   }
 
@@ -136,7 +135,6 @@ export class AxesChartService implements ChartTypeService {
   }
 
   private updateAxis({ drawXAxis, xAxis, xScale, drawYAxis, yAxis, yScale }: AxesChartSettings) {
-    console.log('update', { drawXAxis, xAxis, xScale, drawYAxis, yAxis, yScale })
     drawXAxis.call(xAxis.scale(xScale));
     drawYAxis.call(yAxis.scale(yScale));
   }

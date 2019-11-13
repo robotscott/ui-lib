@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-import { ChartType, StandardizedData, StandardizedValueType } from './models';
+import { ChartType, StandardizedData } from './models';
 import { BaseChartService } from './services/base-chart.service';
 
 @Component({
@@ -57,16 +57,4 @@ export class UiChartsComponent implements AfterViewInit {
         .call(this.myChart);
     }
   }
-
-
-  /*
-  TEMPORARY ASSIGNED HERE WHILE DECIDING HOW TO IMPLEMENT TICK TRANSFORMATION
-   */
-  // private xTickTransform(d: number): string {
-  //   return d3
-  //     .format('.2~s')(d)
-  //     .replace('M', ' mil')
-  //     .replace('G', ' bil')
-  //     .replace('T', ' tril');
-  // }
 }

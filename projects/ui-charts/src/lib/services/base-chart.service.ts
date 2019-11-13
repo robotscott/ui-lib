@@ -1,7 +1,7 @@
-import { Injectable, ElementRef } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { BaseChartSettings, ChartType, BaseChart, StandardizedData, BaseChartOptions, StandardizedValueType } from '../models';
+import { BaseChart, BaseChartOptions, BaseChartSettings, ChartType, StandardizedData } from '../models';
 import { ChartTypeService } from '../models/chart-type.model';
 import { AxesChartService } from './axes-chart.service';
 import { DimensionsService } from './dimensions.service';
@@ -27,7 +27,6 @@ export class BaseChartService {
     // Additional closure variables
     let baseChart;
     let data;
-    // const updateSettings = this.setUpdateSettings(chartService);
     const update = this.setUpdateFn(chartService);
 
     function chart(selection: d3.Selection<any, {}, null, undefined>) {
@@ -53,9 +52,11 @@ export class BaseChartService {
     chart.data = function(_?: StandardizedData) {
       if (arguments.length) {
         data = _;
+
+        // Update chart drawing functions
         settings = {
           ...settings,
-          ...chartService.updateSettings(settings, data)
+          ...chartService.setDrawingFns(settings, data)
         };
 
         if (baseChart) {
@@ -125,18 +126,8 @@ export class BaseChartService {
     return this.dimensionsService.getDefaultChartDimensions();
   }
 
-  // private setUpdateSettings(chartService) {
-  //   return function(data: StandardizedData, settings) {
-  //     return {
-  //       ...settings,
-  //       ...chartService.updateSettings(settings, data)
-  //     };
-  //   };
-  // }
-
   private setUpdateFn(chartService) {
     return function(baseChart, data: StandardizedData, settings) {
-      console.log(settings);
       baseChart.selectAll('.data-node')
         .data(data, d => settings.y(d))
         .join(settings.onEnter, settings.onUpdate, exit => exit.remove());

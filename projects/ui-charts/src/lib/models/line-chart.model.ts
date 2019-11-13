@@ -1,15 +1,7 @@
-export type LineChartData = LineChartDataNode[];
+import { AxisValue } from './axes-chart.model';
+import { StandardizedData, StandardizedNodeData } from './standardized-data.model';
 
-export interface LineChartDataNode {
-  label: string;
-  color?: string;
-  value: LineChartValue;
-}
-
-export type LineChartValue = LineChartValuePoint[];
-
-export interface LineChartValuePoint {
-  date: Date | string;
-  value: number;
-}
+export type LineChartData = StandardizedData<LineValue>;
+export type LineNodeData = StandardizedNodeData<LineValue>;
+export type LineValue = AxisValue[];
 

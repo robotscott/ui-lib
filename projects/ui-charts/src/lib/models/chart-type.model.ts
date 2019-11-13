@@ -10,7 +10,7 @@ export interface ChartTypeService {
   addSetGetFns(chart, settings);
   handleOptionsUpdate(chart, options);
   // standardizeData(data: {}, { x, y }: ChartTypeSettings);
-  updateSettings(settings: ChartTypeSettings, data: {}): ChartTypeSettings;
+  setDrawingFns(settings: ChartTypeSettings, data: {}): ChartTypeSettings;
   setJoinFns(settings: ChartTypeSettings): ChartTypeSettings;
   updateChart(settings: ChartTypeSettings): void;
   // updateChart(settings: ChartTypeSettings): ChartTypeSettings;

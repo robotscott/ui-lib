@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { BarChartService } from '../services/bar-chart.service';
 import { LineChartService } from '../services/line-chart.service';
 import { BaseChart, BaseChartOptions, BaseChartSettings } from './base-chart.model';
-import { LineChartData } from './line-chart.model';
 
 export interface AxesChart
   extends BaseChart {
@@ -47,6 +46,16 @@ export interface AxisDef {
   label?: string;
 }
 
-export type AxesChartData = LineChartData;
-
 export type AxesDataHandlerService = BarChartService | LineChartService;
+
+export interface AxisValue
+  extends X,
+  Y { }
+
+interface X {
+  [x: string]: any;
+}
+
+interface Y {
+  [y: string]: any;
+}

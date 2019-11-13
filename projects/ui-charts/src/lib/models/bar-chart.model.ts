@@ -1,21 +1,6 @@
-import { AxisDomain } from 'd3';
+import { AxisValue } from './axes-chart.model';
+import { StandardizedData, StandardizedNodeData } from './standardized-data.model';
 
-export type BarChartData = BarChartDataNode[];
-
-export interface BarChartDataNode {
-  label: AxisDomain;
-  value: number;
-  color?: string;
-}
-
-export interface BarChartValue
-  extends X,
-  Y { }
-
-interface X {
-  [x: string]: any;
-}
-
-interface Y {
-  [y: string]: any;
-}
+export type BarChartData = StandardizedData<BarValue>;
+export type BarNodeData = StandardizedNodeData<BarValue>;
+export type BarValue = AxisValue;

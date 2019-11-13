@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxesChartSettings } from '../models/axes-chart.model';
+import { AxesChartSettings, AxisSettings } from '../models/axes-chart.model';
 import { DataHandlerService } from '../models/data-handler.model';
-import { LineChartData, LineChartValuePoint } from '../models/line-chart.model';
+import { LineChartData } from '../models/line-chart.model';
+import { BaseChartSettings } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class LineChartService implements DataHandlerService {
 
   constructor() { }
 
-  public getEnterFn({ xScale, yScale, height }: AxesChartSettings) {
+  public getEnterFn({ x, y, xScale, yScale, height }: AxesChartSettings) {
 
     const lineGen = this.getLineGen(xScale, yScale);
 
@@ -30,9 +31,9 @@ export class LineChartService implements DataHandlerService {
     };
   }
 
-  public getUpdateFn({ xScale, yScale, height }: AxesChartSettings) {
+  public getUpdateFn({x, y, xScale, yScale, height }: AxesChartSettings) {
 
-    const lineGen = this.getLineGen(xScale, yScale);
+    const lineGen = this.getLineGen(x, y, xScale, yScale);
 
     return function(update) {
       const linesUpdate = update
@@ -42,31 +43,32 @@ export class LineChartService implements DataHandlerService {
       linesUpdate
         .select('rect')
         .attr('width', xScale.bandwidth())
-        .attr('height', d => height - yScale(d[0]));
+        .attr('height', d => height - yScale(y(d)));
 
       return linesUpdate;
     };
   }
 
-  public getXScale(data: LineChartData, width): d3.ScaleTime<number, number> {
-    console.log(data);
-    const dates = this.getAllDates(data.value);
+  public getXScale({x, width}: AxesChartSettings, data: LineChartData): d3.ScaleTime<number, number> {
+    console.log('xScale data', data);
+    const dates = this.getDomainData(x, data);
     return d3
       .scaleTime()
       .domain(d3.extent(dates))
       .range([0, width]);
   }
 
-  public getYScale(data: LineChartData, height): d3.ScaleLinear<number, number> {
-    const dates = this.getAllDates(data);
+  public getYScale({x, y, height}: AxesChartSettings, data: LineChartData): d3.ScaleLinear<number, number> {
+    console.log('yScale data', data);
+    const dates = this.getDomainData(x, data);
     return d3
       .scaleLinear()
-      .domain([0, d3.max(dates, (d): number => d[0])])
+      .domain([0, d3.max(dates, (d): number => y(d))])
       .range([height, 0])
       .nice();
   }
 
-  private getAllDates(data: LineChartData): Date[] {
+  private getDomainData(x, data: LineChartData) {
     return data.reduce((dates, node) => {
       console.log(node);
       const nodeDates = node.value.map(point => point.date);
@@ -74,10 +76,10 @@ export class LineChartService implements DataHandlerService {
     }, []);
   }
 
-  private getLineGen(xScale, yScale) {
+  private getLineGen(x, y, xScale, yScale) {
     return d3
       .line()
-      .x(d => xScale(d.date))
-      .y(d => yScale(d.value));
+      .x(d => xScale(x(d)))
+      .y(d => yScale(y(d)));
   }
 }

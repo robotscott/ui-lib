@@ -1,13 +1,14 @@
-import { BarChartValue } from './bar-chart.model';
-import { LineChartValuePoint, LineChartValue } from './line-chart.model';
+import { BarValue } from './bar-chart.model';
+import { LineValue } from './line-chart.model';
 
-export type StandardizedData<T extends StandardizedValueType = StandardizedValueType> = StandardizedNodeData<T>[];
-// export type StandardizedData<T extends StandardizedValueType> = StandardizedNodeData<T>[];
+export type StandardizedData<T = StandardizedValues> = StandardizedNodeData<T>[];
 
-export interface StandardizedNodeData<T extends StandardizedValueType = StandardizedValueType> {
+export interface StandardizedNodeData<T> {
   label: string;
   color?: string;
   value: T;
 }
 
-export type StandardizedValueType = BarChartValue | LineChartValue;
+export type StandardizedValues = BarValue | LineValue;
+
+
