@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BaseChartSettings, BaseChartOptions, Margin } from '../models';
-import { Selection, BaseType } from 'd3';
+
+import { BaseChartSettings, Dimensions, Margin } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +13,10 @@ export class DimensionsService {
 
   constructor() { }
 
-  public handleOptionsUpdate(chart, options) {
-    chart.width(options.width);
-    chart.height(options.height);
-    chart.margin(options.margin);
+  public handleOptionsUpdate({ width, height, margin }: Dimensions, chart) {
+    chart.width(width);
+    chart.height(height);
+    chart.margin(margin);
     return chart;
   }
 
@@ -43,20 +43,11 @@ export class DimensionsService {
     return svg;
   }
 
-  public setDimensionsWithMargin(margin: Margin, settings: BaseChartSettings): BaseChartSettings {
-    const outerWidth = settings.width + settings.margin.left + settings.margin.right;
-    const outerHeight = settings.height + settings.margin.top + settings.margin.bottom;
-    settings.width = outerWidth - margin.left - margin.right;
-    settings.height = outerHeight - margin.top - margin.bottom;
-
-    return settings;
-  }
-
   public applyChartMargins(chartGroup, settings) {
     return chartGroup.attr('transform', `translate(${settings.margin.left}, ${settings.margin.top})`);
   }
 
-  public addSetGetFns(chart, settings) {
+  public addSetGetFns(settings: Dimensions, chart) {
     chart.width = function(_?: number) {
       return arguments.length ? ((settings.width = _ - settings.margin.left - settings.margin.right), chart) : settings.width;
     };

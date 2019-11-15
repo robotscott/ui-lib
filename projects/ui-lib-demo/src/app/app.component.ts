@@ -50,8 +50,7 @@ export class AppComponent {
     }
   };
 
-  public updateData(data: BehaviorSubject<StandardizedData>) {
-    console.log(lineData);
+  public updateBarData(data: BehaviorSubject<StandardizedData>) {
     const currentData = data.getValue();
     const newData = currentData.map((d: any) => {
       const random = Math.random();
@@ -61,6 +60,37 @@ export class AppComponent {
       }
       return d;
     });
+
+    data.next(newData);
+  }
+
+  public updateLineData(data: BehaviorSubject<StandardizedData>) {
+    const currentData = data.getValue();
+    const newData = currentData.map((d: any) => {
+      console.log(d);
+      const random = Math.random();
+      if (Math.round(random)) {
+        const newValues = d.value.map(v => {
+          const randomV = Math.random();
+          return Math.round(randomV) ? (random * 25000000000) : v.amount;
+        }).sort();
+
+        const newD = d.value.map((v, i) => {
+          v.amount = newValues[i];
+          return v;
+        });
+
+        console.log(newD);
+
+        return {
+          ...d,
+          value: newD
+        };
+      }
+      return d;
+    });
+
+    console.log(newData);
 
     data.next(newData);
   }

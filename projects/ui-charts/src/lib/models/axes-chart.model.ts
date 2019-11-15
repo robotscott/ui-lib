@@ -3,6 +3,9 @@ import * as d3 from 'd3';
 import { BarChartService } from '../services/bar-chart.service';
 import { LineChartService } from '../services/line-chart.service';
 import { BaseChart, BaseChartOptions, BaseChartSettings } from './base-chart.model';
+import { LineValue, LineChartData } from './line-chart.model';
+import { BarValue, BarChartData } from './bar-chart.model';
+import { DataHandlerService } from './data-handler.model';
 
 export interface AxesChart
   extends BaseChart {
@@ -25,8 +28,8 @@ export interface AxesChartSettings
   AxesChartOptions,
   AxisSettings,
   ScalesSettings {
-  x?: any;
-  y?: any;
+  x?(v: AxisCoordinate): any;
+  y?(v: AxisCoordinate): any;
 }
 
 export interface AxisSettings {
@@ -46,9 +49,15 @@ export interface AxisDef {
   label?: string;
 }
 
-export type AxesDataHandlerService = BarChartService | LineChartService;
+export interface AxesDataHandlerService
+  extends DataHandlerService {
+  getXScale(settings: AxesChartSettings, data: BarChartData | LineChartData);
+  getYScale(settings: AxesChartSettings, data: BarChartData | LineChartData);
+}
 
-export interface AxisValue
+export type AxisValue = BarValue | LineValue;
+
+export interface AxisCoordinate
   extends X,
   Y { }
 

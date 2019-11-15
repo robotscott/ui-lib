@@ -1,29 +1,26 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
-import { AxesChartSettings, AxisSettings } from '../models/axes-chart.model';
+import { AxesChartSettings, AxisCoordinate, AxisValue, StandardizedData, AxesDataHandlerService } from '../models';
 import { DataHandlerService } from '../models/data-handler.model';
 import { LineChartData } from '../models/line-chart.model';
-import { BaseChartSettings } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LineChartService implements DataHandlerService {
+export class LineChartService implements AxesDataHandlerService {
 
   constructor() { }
 
-  public getEnterFn({ x, y, xScale, yScale, height }: AxesChartSettings) {
+  public getEnterFn(settings: AxesChartSettings) {
 
-    const lineGen = this.getLineGen(xScale, yScale);
+    const lineGen = this.getLineGen(settings);
 
     return function(enter) {
-      console.log(this.lineGen);
-
       const linesEnter = enter
         .append('path')
-        .attr('class', d => 'data-node line')
-        .attr('d', d => lineGen(d.values))
+        .attr('class', 'data-node line')
+        .attr('d', d => lineGen(d.value))
         .style('fill', 'none')
         .style('stroke', d => d.color || d3.interpolateSinebow(Math.random()));
 
@@ -31,52 +28,46 @@ export class LineChartService implements DataHandlerService {
     };
   }
 
-  public getUpdateFn({x, y, xScale, yScale, height }: AxesChartSettings) {
+  public getUpdateFn(settings: AxesChartSettings) {
 
-    const lineGen = this.getLineGen(x, y, xScale, yScale);
+    const lineGen = this.getLineGen(settings);
 
     return function(update) {
       const linesUpdate = update
         .transition()
-        .attr('d', d => lineGen(d.values));
-
-      linesUpdate
-        .select('rect')
-        .attr('width', xScale.bandwidth())
-        .attr('height', d => height - yScale(y(d)));
+        .attr('d', d => lineGen(d.value));
 
       return linesUpdate;
     };
   }
 
+  // TODO: need to decide if time will be only x values
   public getXScale({x, width}: AxesChartSettings, data: LineChartData): d3.ScaleTime<number, number> {
-    console.log('xScale data', data);
-    const dates = this.getDomainData(x, data);
+    const xValues = this.getAxesValues(x, data);
     return d3
       .scaleTime()
-      .domain(d3.extent(dates))
+      .domain(d3.extent(xValues))
       .range([0, width]);
   }
 
-  public getYScale({x, y, height}: AxesChartSettings, data: LineChartData): d3.ScaleLinear<number, number> {
-    console.log('yScale data', data);
-    const dates = this.getDomainData(x, data);
+  public getYScale({y, height}: AxesChartSettings, data: LineChartData): d3.ScaleLinear<number, number> {
+    console.log(data);
+    const yValues = this.getAxesValues(y, data);
     return d3
       .scaleLinear()
-      .domain([0, d3.max(dates, (d): number => y(d))])
+      .domain([0, d3.max(yValues)])
       .range([height, 0])
       .nice();
   }
 
-  private getDomainData(x, data: LineChartData) {
-    return data.reduce((dates, node) => {
-      console.log(node);
-      const nodeDates = node.value.map(point => point.date);
-      return [...dates, ...nodeDates];
+  private getAxesValues(valueGetter: (d: AxisCoordinate) => number, data: LineChartData) {
+    return data.reduce((axesValues, node) => {
+      const nodeAxesValues = node.value.map(d => valueGetter(d));
+      return [...axesValues, ...nodeAxesValues];
     }, []);
   }
 
-  private getLineGen(x, y, xScale, yScale) {
+  private getLineGen({x, y, xScale, yScale}: AxesChartSettings) {
     return d3
       .line()
       .x(d => xScale(x(d)))
