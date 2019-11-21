@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
-import { AxesChartOptions, StandardizedData, BarChartData, LineChartData } from 'ui-charts';
+import { AxesChartOptions, BarChartData, LineChartData, LineValue, StandardizedData, AxisCoordinate } from 'ui-charts';
 
 @Component({
   selector: 'app-root',
@@ -66,21 +66,18 @@ export class AppComponent {
 
   public updateLineData(data: BehaviorSubject<StandardizedData>) {
     const currentData = data.getValue();
-    const newData = currentData.map((d: any) => {
-      console.log(d);
+    const newData = currentData.map((d) => {
       const random = Math.random();
       if (Math.round(random)) {
-        const newValues = d.value.map(v => {
+        const newValues = d.value.map((v: AxisCoordinate, i) => {
           const randomV = Math.random();
-          return Math.round(randomV) ? (random * 25000000000) : v.amount;
-        }).sort();
+          return Math.round(randomV) ? Math.ceil(randomV * 25000000000) : v.amount;
+        }).sort((a, b) => a - b);
 
         const newD = d.value.map((v, i) => {
           v.amount = newValues[i];
           return v;
         });
-
-        console.log(newD);
 
         return {
           ...d,
