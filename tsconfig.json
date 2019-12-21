@@ -20,7 +20,8 @@
     ],
     "paths": {
       "ui-charts": [
-        "projects/ui-charts/src/public-api"
+        "dist/ui-charts"
+        // "projects/ui-charts/src/public-api"
       ],
       "ui-charts/*": [
         "dist/ui-charts/*"
